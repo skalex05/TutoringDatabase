@@ -1,0 +1,8 @@
+backend/TutoringDatabase.db
+backend/TutoringDatabaseBackup.db
+backend/identifier.sqlite
+backend/__pycache__/
+venv
+tms
+.pytest_cache
+.idea/
