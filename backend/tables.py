@@ -5,7 +5,7 @@ class Parent(db.Model):
     ParentID = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
-    Email = db.Column(db.String(50), unique=True)
+    Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
     students = db.relationship('Student', backref='parent', lazy=True)
 
@@ -24,7 +24,7 @@ class Business(db.Model):
     BusinessName = db.Column(db.String(40))
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
-    Email = db.Column(db.String(50), unique=True)
+    Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
     students = db.relationship('Student', backref='business', lazy=True)
 
@@ -44,11 +44,11 @@ class Student(db.Model):
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
     YearGrade = db.Column(db.Integer)
-    Email = db.Column(db.String(50), unique=True)
+    Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
     BusinessID = db.Column(db.Integer, db.ForeignKey('business.BusinessID'), nullable=False)
     ParentID = db.Column(db.Integer, db.ForeignKey('parent.ParentID'), nullable=False)
-    sessions = db.relationship('Timetable', backref='student', lazy=True)
+    sessions = db.relationship('Session', backref='student', lazy=True)
 
     def to_json(self):
         return {
@@ -63,7 +63,7 @@ class Student(db.Model):
         }
 
 
-class Timetable(db.Model):
+class Session(db.Model):
     SessionID = db.Column(db.Integer, primary_key=True)
     StudentID = db.Column(db.Integer, db.ForeignKey('student.StudentID'), nullable=False)
     Subject = db.Column(db.String(50))
@@ -88,4 +88,4 @@ class Timetable(db.Model):
         }
 
     def __repr__(self):
-        return f"Timetable('{self.Subject}', '{self.Weekday}', '{self.StartTime}', '{self.EndTime}', '{self.Pay}')"
+        return f"Session('{self.Subject}', '{self.Weekday}', '{self.StartTime}', '{self.EndTime}', '{self.Pay}')"
