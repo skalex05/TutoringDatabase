@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from tables import Parent, Business, Student, Session, db, app
 import traceback
+from datetime import datetime
 
 # A REST API for the Tutoring Database. Each table has its own set of CRUD endpoints.
 
@@ -21,7 +22,8 @@ def get(table, id_str):
                 return {table.__name__: []}, 200
         else:
             rows = table.query.all()
-            return jsonify({table.__name__: [row.to_json() for row in rows]}), 200
+            json = jsonify({table.__name__: [row.to_json() for row in rows]})
+            return json, 200
     except Exception as e:
         # If an error occurs, print the traceback and return a 500 status code
         print()
@@ -29,13 +31,12 @@ def get(table, id_str):
         return {}, 500
 
 
-def new(table):
+def new(table, data):
     """
         Generic function for creating a new row in a given database and returns the new row's JSON.
         :return: {"table": [row JSON]}, 200 - success/ 500 - server error
         """
     try:
-        data = request.get_json()
         row = table(**data)
         db.session.add(row)
         db.session.commit()
@@ -98,7 +99,8 @@ def new_parent():
     Adds a new parent to the database and returns the new parent's JSON.
     :return: {"parent": [parent JSON]}, 200 - success/ 500 - server error
     """
-    response = new(Parent)
+    data = request.get_json()
+    response = new(Parent, data)
     return response
 
 
@@ -141,7 +143,8 @@ def new_business():
     Adds a new business to the database and returns the new business's JSON.
     :return: {"business": [business JSON]}, 200 - success/ 500 - server error
     """
-    response = new(Business)
+    data = request.get_json()
+    response = new(Business, data)
     return response
 
 
@@ -184,7 +187,8 @@ def new_student():
     Adds a new student to the database and returns the new student's JSON.
     :return: {"student": [student JSON]}, 200 - success/ 500 - server error
     """
-    response = new(Student)
+    data = request.get_json()
+    response = new(Student, data)
     return response
 
 
@@ -227,7 +231,15 @@ def new_session():
     Adds a new session to the database and returns the new session's JSON.
     :return: {"session": [session JSON]}, 200 - success/ 500 - server error
     """
-    response = new(Session)
+    try:
+        data = request.get_json()
+        data["StartWeekDate"] = datetime.strptime(data["StartWeekDate"], "%Y-%m-%d").date()
+        data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
+        data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
+    response = new(Session, data)
     return response
 
 
@@ -247,8 +259,20 @@ def update_session():
         Updates a session in the database. The SessionID must be provided in the JSON.
         :return: {"session": [session JSON]}, 200 - success/ 500 - server error
     """
+    try:
+        data = request.get_json()
+        if "StartWeekDate" in data:
+            data["StartWeekDate"] = datetime.strptime(data["StartWeekDate"], "%Y-%m-%d").date()
+        if "StartTime" in data:
+            data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
+        if "EndTime" in data:
+            data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
     response = update(Session)
     return response
+
 
 
 # Create DB if one does not already exist

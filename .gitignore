@@ -1,5 +1,6 @@
 backend/TutoringDatabase.db
-backend/TutoringDatabaseBackup.db
+backend/client_secret.json
+backend/Backups/
 backend/identifier.sqlite
 backend/__pycache__/
 venv
