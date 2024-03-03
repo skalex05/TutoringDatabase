@@ -1,4 +1,4 @@
-from config import db, app
+from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource
 from datetime import datetime
 
 class Parent(db.Model):
@@ -91,7 +91,25 @@ class Event(db.Model):
     EventID = db.Column(db.Integer, primary_key=True)
     SessionID = db.Column(db.Integer, db.ForeignKey("session.SessionID"), nullable=False)
     EventName = db.Column(db.String(50))
-    EventDateTime = db.Column(db.DateTime)
-    CalendarEventID = db.Column(db.String(50))
+    EventDateTimeStart = db.Column(db.DateTime)
+    EventDateTimeEnd = db.Column(db.DateTime)
+    GoogleCalendarID = db.Column(db.String(50))
+    GoogleEventID = db.Column(db.String(50))
+    GoogleMeetLink = db.Column(db.String(50))
     LinkEmailSent = db.Column(db.Boolean)
     FollowupEmailSent = db.Column(db.Boolean)
+
+    def to_json(self):
+        return {
+            "EventID": self.EventID,
+            "SessionID": self.SessionID,
+            "EventName": self.EventName,
+            "EventDateTimeStart": self.EventDateTimeStart.strftime("%Y-%m-%d %H:%M") if self.EventDateTimeStart else None,
+            "EventDateTimeEnd": self.EventDateTimeEnd.strftime("%Y-%m-%d %H:%M") if self.EventDateTimeEnd else None,
+            "GoogleCalendarID": self.GoogleCalendarID,
+            "GoogleEventID": self.GoogleEventID,
+            "GoogleMeetLink": self.GoogleMeetLink,
+            "LinkEmailSent": self.LinkEmailSent,
+            "FollowupEmailSent": self.FollowupEmailSent,
+            "Rescheduled": False
+        }

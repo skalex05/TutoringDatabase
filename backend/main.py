@@ -1,12 +1,19 @@
 from flask import request, jsonify
-from tables import Parent, Business, Student, Session, db, app
+from tables import (Parent, Business, Student, Session, Event,
+                    db, app,
+                    CALENDAR_ID,
+                    calendar_service, gmail_service,
+                    calendarResource, eventsResource)
 import traceback
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
 
 # A REST API for the Tutoring Database. Each table has its own set of CRUD endpoints.
+# The database also connects to google calendar to create Google Meet links for each session
+# which can then be emailed to clients.
+
 
 # Generics
-
 
 def get(table, id_str):
     """Generic get function for all tables
@@ -54,9 +61,11 @@ def delete(table, id_str):
     """
     try:
         data = request.get_json()
-        table.query.filter_by(**{table.__name__+"ID": data[id_str]}).delete()
+        rows = table.query.filter_by(**{table.__name__+"ID": data[id_str]})
+        json = jsonify({table.__name__: [row.to_json() for row in rows]})
+        rows.delete()
         db.session.commit()
-        return {}, 200
+        return json, 200
     except Exception as e:
         print()
         traceback.print_exception(e)
@@ -261,19 +270,167 @@ def update_session():
     """
     try:
         data = request.get_json()
+        timeChange = False
         if "StartWeekDate" in data:
+            timeChange = True
             data["StartWeekDate"] = datetime.strptime(data["StartWeekDate"], "%Y-%m-%d").date()
         if "StartTime" in data:
+            timeChange = True
             data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
         if "EndTime" in data:
+            timeChange = True
             data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
+        Event.query.filter_by(**{"SessionID": data["SessionID"]}).update(data)
     except Exception as e:
         traceback.print_exception(e)
         return {}, 500
     response = update(Session)
     return response
 
+# Event Table
 
+@app.route("/get_event", methods=["GET"])
+def get_event():
+    """
+    If an EventID is provided, it will return the event with that ID.
+    Otherwise, it will get all events from the database.
+    :return: {"events": [event JSON]}, 200 - success/ 500 - server error
+    """
+    response = get(Event, "EventID")
+    return response
+
+@app.route("/new_event", methods=["POST"])
+def new_event():
+    """
+    Adds a new event to the database and returns the new event's JSON.
+    :return: {"event": [event JSON]}, 200 - success/ 500 - server error
+    """
+    data = request.get_json()
+    try:
+        session, status = get_session()
+        session = session.json["Session"][0]
+        if status != 200:
+            return {}, 500
+        data["StudentID"] = session["StudentID"]
+        student, status = get_student()
+        student = student.json["Student"][0]
+        if status != 200:
+            return {}, 500
+        data["ParentID"] = student["ParentID"]
+        parent, status = get_parent()
+        parent = parent.json["Parent"][0]
+        if status != 200:
+            return {}, 500
+        data["BusinessID"] = student["BusinessID"]
+        business, status = get_business()
+        business = business.json["Business"][0]
+        if status != 200:
+            return {}, 500
+        del data["BusinessID"]
+        week_start = datetime.strptime(session["StartWeekDate"], "%Y-%m-%d")
+        week_start = week_start + timedelta(days=session["WeekdayInt"] - week_start.weekday() - 1)
+        del data["StartWeekDate"]
+
+        start_time = datetime.strptime(session["StartTime"], "%H:%M")
+        start_time = datetime(week_start.year, week_start.month, week_start.day, start_time.hour, start_time.minute)
+        data["EventDateTimeStart"] = start_time
+        start_time = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+        end_time = datetime.strptime(session["EndTime"], "%H:%M")
+        end_time = datetime(week_start.year, week_start.month, week_start.day, end_time.hour, end_time.minute)
+        data["EventDateTimeEnd"] = end_time
+        end_time = end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        data["EventName"] = session["SessionName"]
+        eventBody = {
+            "attendees": [
+                {"email": parent["Email"]},
+                {"email": student["Email"]}
+            ],
+            "summary": session["SessionName"],
+            "description": f"{session['Subject']} Session for {student['FirstName']} {student['LastName']}\n- {business['BusinessName']} - {business['Email']}",
+            "conferenceData": {
+                "createRequest": {
+                    "requestId": str(uuid.uuid4()),
+                    "conferenceSolutionKey": {
+                        "type": "hangoutsMeet"
+                    },
+                }
+            },
+            "start": {
+                "dateTime": start_time,
+                "timeZone": "Europe/London"
+            },
+            "end": {
+                "dateTime": end_time,
+                "timeZone": "Europe/London"
+            }
+        }
+
+        response = eventsResource.insert(calendarId=CALENDAR_ID, body=eventBody, conferenceDataVersion=1).execute()
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
+    data["GoogleCalendarID"] = CALENDAR_ID
+    data["GoogleEventID"] = response["id"]
+    data["GoogleMeetLink"] = response["hangoutLink"]
+
+    del data["StudentID"]
+    del data["ParentID"]
+    response = new(Event, data)
+    return response
+
+
+@app.route("/update_event", methods=["PUT"])
+def update_event():
+    """
+        Updates an event in the database. The EventID must be provided in the JSON.
+        :return: {"event": [event JSON]}, 200 - success/ 500 - server error
+    """
+    try:
+        data = request.get_json()
+        if "EventDateTimeStart" in data:
+            strEventDateTimeStart = data["EventDateTimeStart"]
+            data["EventDateTimeStart"] = datetime.strptime(strEventDateTimeStart, "%Y-%m-%dT%H:%M:%S.000Z")
+        if "EventDateTimeEnd" in data:
+            strEventDateTimeEnd = data["EventDateTimeEnd"]
+            data["EventDateTimeEnd"] = datetime.strptime(strEventDateTimeEnd, "%Y-%m-%dT%H:%M:%S.000Z")
+
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
+    response = update(Event)
+    event_json = response[0].json["Event"][0]
+    try:
+        json_body = {}
+        if "EventDateTimeStart" in data:
+            json_body["start"] = {"dateTime": strEventDateTimeStart, "timeZone": "Europe/London"}
+        if "EventDateTimeEnd" in data:
+            json_body["end"] = {"dateTime": strEventDateTimeEnd, "timeZone": "Europe/London"}
+        if "EventName" in data:
+            json_body["summary"] = data["EventName"]
+        eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
+                              body=json_body).execute()
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
+    return response
+
+@app.route("/del_event", methods=["DELETE"])
+def del_event():
+    """
+        Deletes an event from the database.
+        :return: 200 - success/ 500 - server error
+    """
+    response, status = delete(Event, "EventID")
+    try:
+        calendarID = response.json["Event"][0]["GoogleCalendarID"]
+        eventID = response.json["Event"][0]["GoogleEventID"]
+        eventsResource.delete(calendarId=calendarID, eventId=eventID).execute()
+    except Exception as e:
+        traceback.print_exception(e)
+        return {}, 500
+
+    return response
 
 # Create DB if one does not already exist
 with app.app_context():

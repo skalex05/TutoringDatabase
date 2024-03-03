@@ -99,7 +99,7 @@ def test_new_business(app):
         test_json = {"BusinessName": "Test Business",
                      "FirstName": "John",
                      "LastName": "Doe",
-                     "Email": "johndoe@hotmail.com",
+                     "Email": "johndoebusiness@hotmail.com",
                      "PhoneNumber": "1234567890"}
         response = test_client.post("/new_business", json=test_json)
         assert response.status_code == 200
@@ -350,3 +350,78 @@ def test_del_session(app):
         assert response.status_code == 200
         assert "Session" in response.json
         assert response.json["Session"] == []
+
+
+# Event Tests
+
+def test_new_event(app):
+    test_new_session(app)
+    with app.app_context():
+        # Get a session to use in the test
+        test_client = app.test_client()
+        test_client.get("/get_session")
+        response = test_client.get("/get_session")
+        assert response.status_code == 200
+        assert "Session" in response.json
+        session = response.json["Session"][0]
+
+        test_json = {"SessionID": session["SessionID"],
+                     "EventName": session["SessionName"],
+                     "StartWeekDate": session["StartWeekDate"],
+                     "LinkEmailSent": False,
+                     "FollowupEmailSent": False
+                     }
+
+        response = test_client.post("/new_event", json=test_json)
+        assert response.status_code == 200
+        assert "Event" in response.json
+        json = response.json["Event"][0]
+        del json["EventID"]
+        del json["GoogleCalendarID"]
+        del json["GoogleEventID"]
+        del json["GoogleMeetLink"]
+        del json["EventDateTimeStart"]
+        del json["EventDateTimeEnd"]
+        del json["Rescheduled"]
+        del test_json["StartWeekDate"]
+        assert json == test_json
+
+def test_get_event(app):
+    with app.app_context():
+        test_client = app.test_client()
+        response = test_client.get("/get_event")
+        assert response.status_code == 200
+        assert "Event" in response.json
+
+def test_update_event(app):
+    with app.app_context():
+        test_client = app.test_client()
+        response = test_client.get("/get_event")
+        assert response.status_code == 200
+        assert "Event" in response.json
+        test_json = {
+            "EventID": response.json["Event"][0]["EventID"],
+            "EventDateTimeStart": "2024-03-04T13:00:00.000Z",
+            "EventDateTimeEnd":   "2024-03-04T15:00:00.000Z",
+            "EventName": "New Event Name"
+        }
+        response = test_client.put("/update_event", json=test_json)
+        assert response.status_code == 200
+        assert "Event" in response.json
+        response = test_client.get("/get_event")
+
+
+# def test_del_event(app):
+#     with app.app_context():
+#         test_client = app.test_client()
+#         response = test_client.get("/get_event")
+#         assert response.status_code == 200
+#         assert "Event" in response.json
+#
+#         event_id = response.json["Event"][0]["EventID"]
+#         response = test_client.delete("/del_event", json={"EventID": event_id})
+#         assert response.status_code == 200
+#         response = test_client.get("/get_event", query_string={"EventID": event_id})
+#         assert response.status_code == 200
+#         assert "Event" in response.json
+#         assert response.json["Event"] == []
