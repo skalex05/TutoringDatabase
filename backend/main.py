@@ -33,7 +33,6 @@ def get(table, id_str):
             return json, 200
     except Exception as e:
         # If an error occurs, print the traceback and return a 500 status code
-        print()
         traceback.print_exception(e)
         return {}, 500
 
@@ -49,7 +48,6 @@ def new(table, data):
         db.session.commit()
         return jsonify({table.__name__: [row.to_json()]}), 200
     except Exception as e:
-        print()
         traceback.print_exception(e)
         return {}, 500
 
@@ -67,7 +65,6 @@ def delete(table, id_str):
         db.session.commit()
         return json, 200
     except Exception as e:
-        print()
         traceback.print_exception(e)
         return {}, 500
 
@@ -84,7 +81,6 @@ def update(table):
         db.session.commit()
         return jsonify({table.__name__: [row.to_json()]}), 200
     except Exception as e:
-        print()
         traceback.print_exception(e)
         return {}, 500
 
@@ -268,6 +264,7 @@ def update_session():
         Updates a session in the database. The SessionID must be provided in the JSON.
         :return: {"session": [session JSON]}, 200 - success/ 500 - server error
     """
+
     try:
         data = request.get_json()
         timeChange = False
@@ -280,12 +277,39 @@ def update_session():
         if "EndTime" in data:
             timeChange = True
             data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
-        Event.query.filter_by(**{"SessionID": data["SessionID"]}).update(data)
+        if timeChange:
+            for event in Event.query.filter_by(**{"SessionID": data["SessionID"]}).all():
+                event_json = event.to_json()
+                start_time = datetime.strptime(event_json["EventDateTimeStart"], "%Y-%m-%d %H:%M")
+                if start_time < datetime.now():
+                    continue
+                end_time = datetime.strptime(event_json["EventDateTimeEnd"], "%Y-%m-%d %H:%M")
+                start_time = start_time.replace(year=data["StartWeekDate"].year, month=data["StartWeekDate"].month,
+                                                day=data["StartWeekDate"].day, hour=data["StartTime"].hour,
+                                                minute=data["StartTime"].minute)
+                end_time = end_time.replace(year=data["StartWeekDate"].year, month=data["StartWeekDate"].month,
+                                            day=data["StartWeekDate"].day, hour=data["EndTime"].hour,
+                                            minute=data["EndTime"].minute)
+                event_json["EventDateTimeStart"] = start_time
+                event_json["EventDateTimeEnd"] = end_time
+                eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
+                                      body={"start": {"dateTime": start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                                                      "timeZone": "Europe/London"},
+                                            "end": {"dateTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                                                    "timeZone": "Europe/London"}}).execute()
+
+                Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).update(data)
+                row = Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).first()
+                db.session.commit()
+                return jsonify({Event.__name__: [row.to_json()]}), 200
+
+        Session.query.filter_by(**{Session.__name__ + "ID": data[Session.__name__ + "ID"]}).update(data)
+        row = Session.query.filter_by(**{Session.__name__ + "ID": data[Session.__name__ + "ID"]}).first()
+        db.session.commit()
+        return jsonify({Session.__name__: [row.to_json()]}), 200
     except Exception as e:
         traceback.print_exception(e)
         return {}, 500
-    response = update(Session)
-    return response
 
 # Event Table
 
@@ -381,13 +405,14 @@ def new_event():
 
 
 @app.route("/update_event", methods=["PUT"])
-def update_event():
+def update_event(data=None):
     """
         Updates an event in the database. The EventID must be provided in the JSON.
         :return: {"event": [event JSON]}, 200 - success/ 500 - server error
     """
     try:
-        data = request.get_json()
+        if not data:
+            data = request.get_json()
         if "EventDateTimeStart" in data:
             strEventDateTimeStart = data["EventDateTimeStart"]
             data["EventDateTimeStart"] = datetime.strptime(strEventDateTimeStart, "%Y-%m-%dT%H:%M:%S.000Z")

@@ -29,7 +29,8 @@ def test_new_parent(app):
                      "LastName": "Doe",
                      "Email": "johndoe@hotmail.com",
                      "PhoneNumber": "1234567890"}
-        response = test_client.post("/new_parent", json=test_json)
+        print(type(test_client))
+        response = test_client.post("/new_parent", json=test_json, )
         assert response.status_code == 200
         assert "Parent" in response.json
         json = response.json["Parent"][0]
@@ -312,6 +313,7 @@ def test_get_session(app):
 
 def test_update_session(app):
     test_new_student(app)
+    test_new_event(app)
     with app.app_context():
         test_client = app.test_client()
         response = test_client.get("/get_session")
@@ -411,17 +413,17 @@ def test_update_event(app):
         response = test_client.get("/get_event")
 
 
-# def test_del_event(app):
-#     with app.app_context():
-#         test_client = app.test_client()
-#         response = test_client.get("/get_event")
-#         assert response.status_code == 200
-#         assert "Event" in response.json
-#
-#         event_id = response.json["Event"][0]["EventID"]
-#         response = test_client.delete("/del_event", json={"EventID": event_id})
-#         assert response.status_code == 200
-#         response = test_client.get("/get_event", query_string={"EventID": event_id})
-#         assert response.status_code == 200
-#         assert "Event" in response.json
-#         assert response.json["Event"] == []
+def test_del_event(app):
+    with app.app_context():
+        test_client = app.test_client()
+        response = test_client.get("/get_event")
+        assert response.status_code == 200
+        assert "Event" in response.json
+
+        event_id = response.json["Event"][0]["EventID"]
+        response = test_client.delete("/del_event", json={"EventID": event_id})
+        assert response.status_code == 200
+        response = test_client.get("/get_event", query_string={"EventID": event_id})
+        assert response.status_code == 200
+        assert "Event" in response.json
+        assert response.json["Event"] == []

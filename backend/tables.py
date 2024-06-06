@@ -1,6 +1,5 @@
 from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource
 from datetime import datetime
-
 class Parent(db.Model):
     ParentID = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(20))
@@ -8,7 +7,6 @@ class Parent(db.Model):
     Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
     students = db.relationship("Student", backref="parent", lazy=True)
-
     def to_json(self):
         return {
             "ParentID": self.ParentID,
@@ -17,8 +15,6 @@ class Parent(db.Model):
             "Email": self.Email,
             "PhoneNumber": self.PhoneNumber
         }
-
-
 class Business(db.Model):
     BusinessID = db.Column(db.Integer, primary_key=True)
     BusinessName = db.Column(db.String(40))
@@ -98,6 +94,7 @@ class Event(db.Model):
     GoogleMeetLink = db.Column(db.String(50))
     LinkEmailSent = db.Column(db.Boolean)
     FollowupEmailSent = db.Column(db.Boolean)
+    Paid = db.Column(db.Boolean)
 
     def to_json(self):
         return {
