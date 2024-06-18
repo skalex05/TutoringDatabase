@@ -8,6 +8,7 @@ import traceback
 import uuid
 from datetime import datetime, timedelta
 
+
 # A REST API for the Tutoring Database. Each table has its own set of CRUD endpoints.
 # The database also connects to google calendar to create Google Meet links for each session
 # which can then be emailed to clients.
@@ -22,7 +23,7 @@ def get(table, id_str):
     try:
         row_id = request.args.get(id_str)
         if row_id:
-            row = table.query.filter_by(**{table.__name__+"ID": row_id}).first()
+            row = table.query.filter_by(**{table.__name__ + "ID": row_id}).first()
             if row:
                 return jsonify({table.__name__: [row.to_json()]}), 200
             else:
@@ -59,7 +60,7 @@ def delete(table, id_str):
     """
     try:
         data = request.get_json()
-        rows = table.query.filter_by(**{table.__name__+"ID": data[id_str]})
+        rows = table.query.filter_by(**{table.__name__ + "ID": data[id_str]})
         json = jsonify({table.__name__: [row.to_json() for row in rows]})
         rows.delete()
         db.session.commit()
@@ -76,8 +77,8 @@ def update(table):
     """
     try:
         data = request.get_json()
-        table.query.filter_by(**{table.__name__+"ID": data[table.__name__+"ID"]}).update(data)
-        row = table.query.filter_by(**{table.__name__+"ID": data[table.__name__+"ID"]}).first()
+        table.query.filter_by(**{table.__name__ + "ID": data[table.__name__ + "ID"]}).update(data)
+        row = table.query.filter_by(**{table.__name__ + "ID": data[table.__name__ + "ID"]}).first()
         db.session.commit()
         return jsonify({table.__name__: [row.to_json()]}), 200
     except Exception as e:
@@ -87,7 +88,7 @@ def update(table):
 
 # Parent Table
 
-@app.route("/get_parent", methods=["GET"])
+@app.route("/get_parent", methods=["OPTIONS", "GET"])
 def get_parent():
     """
     If a ParentID is provided, it will return the parent with that ID.
@@ -98,7 +99,7 @@ def get_parent():
     return response
 
 
-@app.route("/new_parent", methods=["POST"])
+@app.route("/new_parent", methods=["OPTIONS", "POST"])
 def new_parent():
     """
     Adds a new parent to the database and returns the new parent's JSON.
@@ -109,7 +110,7 @@ def new_parent():
     return response
 
 
-@app.route("/del_parent", methods=["DELETE"])
+@app.route("/del_parent", methods=["OPTIONS", "DELETE"])
 def del_parent():
     """
         Deletes a parent from the database.
@@ -119,7 +120,7 @@ def del_parent():
     return response
 
 
-@app.route("/update_parent", methods=["PUT"])
+@app.route("/update_parent", methods=["OPTIONS", "PUT"])
 def update_parent():
     """
         Updates a parent in the database. The ParentID must be provided in the JSON.
@@ -131,7 +132,7 @@ def update_parent():
 
 # Business Table
 
-@app.route("/get_business", methods=["GET"])
+@app.route("/get_business", methods=["OPTIONS", "GET"])
 def get_business():
     """
     If a BusinessID is provided, it will return the business with that ID.
@@ -142,18 +143,21 @@ def get_business():
     return response
 
 
-@app.route("/new_business", methods=["POST"])
+@app.route("/new_business", methods=["OPTIONS", "POST"])
 def new_business():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     Adds a new business to the database and returns the new business's JSON.
     :return: {"business": [business JSON]}, 200 - success/ 500 - server error
     """
     data = request.get_json()
+    print(data)
     response = new(Business, data)
     return response
 
 
-@app.route("/del_business", methods=["DELETE"])
+@app.route("/del_business", methods=["OPTIONS", "DELETE"])
 def del_business():
     """
         Deletes a business from the database.
@@ -163,8 +167,10 @@ def del_business():
     return response
 
 
-@app.route("/update_business", methods=["PUT"])
+@app.route("/update_business", methods=["OPTIONS", "PUT"])
 def update_business():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Updates a business in the database. The BusinessID must be provided in the JSON.
         :return: {"business": [business JSON]}, 200 - success/ 500 - server error
@@ -175,8 +181,10 @@ def update_business():
 
 # Student Table
 
-@app.route("/get_student", methods=["GET"])
+@app.route("/get_student", methods=["OPTIONS", "GET"])
 def get_student():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     If a StudentID is provided, it will return the student with that ID.
     Otherwise, it will get all students from the database.
@@ -186,8 +194,10 @@ def get_student():
     return response
 
 
-@app.route("/new_student", methods=["POST"])
+@app.route("/new_student", methods=["OPTIONS", "POST"])
 def new_student():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     Adds a new student to the database and returns the new student's JSON.
     :return: {"student": [student JSON]}, 200 - success/ 500 - server error
@@ -197,8 +207,10 @@ def new_student():
     return response
 
 
-@app.route("/del_student", methods=["DELETE"])
+@app.route("/del_student", methods=["OPTIONS", "DELETE"])
 def del_student():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Deletes a student from the database.
         :return: 200 - success/ 500 - server error
@@ -207,8 +219,10 @@ def del_student():
     return response
 
 
-@app.route("/update_student", methods=["PUT"])
+@app.route("/update_student", methods=["OPTIONS", "PUT"])
 def update_student():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Updates a student in the database. The StudentID must be provided in the JSON.
         :return: {"student": [student JSON]}, 200 - success/ 500 - server error
@@ -219,8 +233,10 @@ def update_student():
 
 # Session Table
 
-@app.route("/get_session", methods=["GET"])
+@app.route("/get_session", methods=["OPTIONS", "GET"])
 def get_session():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     If a SessionID is provided, it will return the session with that ID.
     Otherwise, it will get all sessions from the database.
@@ -230,8 +246,10 @@ def get_session():
     return response
 
 
-@app.route("/new_session", methods=["POST"])
+@app.route("/new_session", methods=["OPTIONS", "POST"])
 def new_session():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     Adds a new session to the database and returns the new session's JSON.
     :return: {"session": [session JSON]}, 200 - success/ 500 - server error
@@ -248,8 +266,10 @@ def new_session():
     return response
 
 
-@app.route("/del_session", methods=["DELETE"])
+@app.route("/del_session", methods=["OPTIONS", "DELETE"])
 def del_session():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Deletes a session from the database.
         :return: 200 - success/ 500 - server error
@@ -258,8 +278,10 @@ def del_session():
     return response
 
 
-@app.route("/update_session", methods=["PUT"])
+@app.route("/update_session", methods=["OPTIONS", "PUT"])
 def update_session():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Updates a session in the database. The SessionID must be provided in the JSON.
         :return: {"session": [session JSON]}, 200 - success/ 500 - server error
@@ -293,10 +315,10 @@ def update_session():
                 event_json["EventDateTimeStart"] = start_time
                 event_json["EventDateTimeEnd"] = end_time
                 eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
-                                      body={"start": {"dateTime": start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                                                      "timeZone": "Europe/London"},
-                                            "end": {"dateTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                                                    "timeZone": "Europe/London"}}).execute()
+                                     body={"start": {"dateTime": start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                                                     "timeZone": "Europe/London"},
+                                           "end": {"dateTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                                                   "timeZone": "Europe/London"}}).execute()
 
                 Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).update(data)
                 row = Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).first()
@@ -311,10 +333,13 @@ def update_session():
         traceback.print_exception(e)
         return {}, 500
 
+
 # Event Table
 
-@app.route("/get_event", methods=["GET"])
+@app.route("/get_event", methods=["OPTIONS", "GET"])
 def get_event():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     If an EventID is provided, it will return the event with that ID.
     Otherwise, it will get all events from the database.
@@ -323,8 +348,13 @@ def get_event():
     response = get(Event, "EventID")
     return response
 
-@app.route("/new_event", methods=["POST"])
+
+@app.route("/new_event", methods=["OPTIONS", "POST"])
 def new_event():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     Adds a new event to the database and returns the new event's JSON.
     :return: {"event": [event JSON]}, 200 - success/ 500 - server error
@@ -404,8 +434,10 @@ def new_event():
     return response
 
 
-@app.route("/update_event", methods=["PUT"])
+@app.route("/update_event", methods=["OPTIONS", "PUT"])
 def update_event(data=None):
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Updates an event in the database. The EventID must be provided in the JSON.
         :return: {"event": [event JSON]}, 200 - success/ 500 - server error
@@ -434,14 +466,17 @@ def update_event(data=None):
         if "EventName" in data:
             json_body["summary"] = data["EventName"]
         eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
-                              body=json_body).execute()
+                             body=json_body).execute()
     except Exception as e:
         traceback.print_exception(e)
         return {}, 500
     return response
 
-@app.route("/del_event", methods=["DELETE"])
+
+@app.route("/del_event", methods=["OPTIONS", "DELETE"])
 def del_event():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Deletes an event from the database.
         :return: 200 - success/ 500 - server error
@@ -457,9 +492,10 @@ def del_event():
 
     return response
 
+
 # Create DB if one does not already exist
 with app.app_context():
     db.create_all()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

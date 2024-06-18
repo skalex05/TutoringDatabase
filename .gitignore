@@ -1,11 +1,1 @@
-backend/TutoringDatabase.db
-backend/client_secret.json
-backend/token.json
-backend/calendarId.txt
-backend/Backups/
-backend/identifier.sqlite
-backend/__pycache__/
-venv
-tms
-.pytest_cache
-.idea/
+frontend.iml

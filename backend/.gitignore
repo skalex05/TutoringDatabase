@@ -1,0 +1,7 @@
+TutoringDatabase.db
+client_secret.json
+token.json
+calendarId.txt
+Backups/
+identifier.sqlite
+__pycache__/
