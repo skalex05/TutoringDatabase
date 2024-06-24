@@ -6,7 +6,8 @@ class Parent(db.Model):
     LastName = db.Column(db.String(40))
     Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
-    students = db.relationship("Student", backref="parent", lazy=True)
+    students = db.relationship("Student", backref=db.backref("parent"))
+
     def to_json(self):
         return {
             "ParentID": self.ParentID,
@@ -22,7 +23,7 @@ class Business(db.Model):
     LastName = db.Column(db.String(40))
     Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
-    students = db.relationship("Student", backref="business", lazy=True)
+    students = db.relationship("Student", backref=db.backref("business"))
 
     def to_json(self):
         return {
@@ -44,7 +45,7 @@ class Student(db.Model):
     PhoneNumber = db.Column(db.String(11))
     BusinessID = db.Column(db.Integer, db.ForeignKey("business.BusinessID"), nullable=False)
     ParentID = db.Column(db.Integer, db.ForeignKey("parent.ParentID"), nullable=False)
-    sessions = db.relationship("Session", backref="student", lazy=True)
+    sessions = db.relationship("Session", backref=db.backref("student"))
 
     def to_json(self):
         return {
@@ -64,11 +65,14 @@ class Session(db.Model):
     SessionName = db.Column(db.String(50))
     StudentID = db.Column(db.Integer, db.ForeignKey("student.StudentID"), nullable=False)
     Subject = db.Column(db.String(50))
-    StartWeekDate = db.Column(db.Date)
-    WeekdayInt = db.Column(db.Integer)
+    Weekday = db.Column(db.Integer)
+    NextScheduleWeekDate = db.Column(db.DateTime)
     StartTime = db.Column(db.Time)
     EndTime = db.Column(db.Time)
     Pay = db.Column(db.Float)
+    Schedule = db.Column(db.Boolean)
+    Notes = db.Column(db.String(200))
+    events = db.relationship("Event", backref=db.backref("session"))
 
     def to_json(self):
         return {
@@ -76,12 +80,15 @@ class Session(db.Model):
             "SessionName": self.SessionName,
             "StudentID": self.StudentID,
             "Subject": self.Subject,
-            "StartWeekDate": self.StartWeekDate.strftime("%Y-%m-%d") if self.StartWeekDate else None,
-            "WeekdayInt": self.WeekdayInt,
+            "Weekday": self.Weekday,
+            "NextScheduleWeekDate": self.NextScheduleWeekDate.strftime("%Y-%m-%d") if self.NextScheduleWeekDate else None,
             "StartTime": self.StartTime.strftime("%H:%M") if self.StartTime else None,
             "EndTime": self.EndTime.strftime("%H:%M") if self.EndTime else None,
-            "Pay": self.Pay
+            "Pay": self.Pay,
+            "Schedule": self.Schedule,
+            "Notes": self.Notes
         }
+
 
 class Event(db.Model):
     EventID = db.Column(db.Integer, primary_key=True)

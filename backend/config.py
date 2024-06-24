@@ -67,4 +67,4 @@ else:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize the database
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, )

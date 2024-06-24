@@ -1,18 +1,17 @@
 import '../../App.css';
-import BusinessTable from "../../Components/BusinessTable/BusinessTable";
+import SessionTable from "../../Components/SessionTable/SessionTable";
 import {Link} from "react-router-dom";
 
-function Businesses() {
-    const title = "People";
+function Students() {
     return (
         <div className="App">
             <header className="App-header">
-                Businesses
+                Sessions
             </header>
             <Link to="../" relative="path">Back</Link>
-            <BusinessTable/>
+            <SessionTable/>
         </div>
     );
 }
 
-export default Businesses;
+export default Students;

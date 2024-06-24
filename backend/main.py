@@ -64,6 +64,8 @@ def delete(table, id_str):
         json = jsonify({table.__name__: [row.to_json() for row in rows]})
         rows.delete()
         db.session.commit()
+        for row in Student.query.all():
+            print(row.to_json())
         return json, 200
     except Exception as e:
         traceback.print_exception(e)
@@ -90,6 +92,8 @@ def update(table):
 
 @app.route("/get_parent", methods=["OPTIONS", "GET"])
 def get_parent():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     If a ParentID is provided, it will return the parent with that ID.
     Otherwise, it will get all parents from the database.
@@ -101,6 +105,8 @@ def get_parent():
 
 @app.route("/new_parent", methods=["OPTIONS", "POST"])
 def new_parent():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     Adds a new parent to the database and returns the new parent's JSON.
     :return: {"parent": [parent JSON]}, 200 - success/ 500 - server error
@@ -112,6 +118,8 @@ def new_parent():
 
 @app.route("/del_parent", methods=["OPTIONS", "DELETE"])
 def del_parent():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Deletes a parent from the database.
         :return: 200 - success/ 500 - server error
@@ -122,6 +130,8 @@ def del_parent():
 
 @app.route("/update_parent", methods=["OPTIONS", "PUT"])
 def update_parent():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Updates a parent in the database. The ParentID must be provided in the JSON.
         :return: {"parent": [parent JSON]}, 200 - success/ 500 - server error
@@ -134,6 +144,8 @@ def update_parent():
 
 @app.route("/get_business", methods=["OPTIONS", "GET"])
 def get_business():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
     If a BusinessID is provided, it will return the business with that ID.
     Otherwise, it will get all businesses from the database.
@@ -152,13 +164,14 @@ def new_business():
     :return: {"business": [business JSON]}, 200 - success/ 500 - server error
     """
     data = request.get_json()
-    print(data)
     response = new(Business, data)
     return response
 
 
 @app.route("/del_business", methods=["OPTIONS", "DELETE"])
 def del_business():
+    if request.method == "OPTIONS":
+        return {"Access-Control-Allow-Origin": "*"}
     """
         Deletes a business from the database.
         :return: 200 - success/ 500 - server error
@@ -256,7 +269,7 @@ def new_session():
     """
     try:
         data = request.get_json()
-        data["StartWeekDate"] = datetime.strptime(data["StartWeekDate"], "%Y-%m-%d").date()
+        data["NextScheduleWeekDate"] = datetime.strptime(data["NextScheduleWeekDate"], "%Y-%m-%d").date()
         data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
         data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
     except Exception as e:
@@ -290,9 +303,9 @@ def update_session():
     try:
         data = request.get_json()
         timeChange = False
-        if "StartWeekDate" in data:
+        if "NextScheduleWeekDate" in data:
             timeChange = True
-            data["StartWeekDate"] = datetime.strptime(data["StartWeekDate"], "%Y-%m-%d").date()
+            data["NextScheduleWeekDate"] = datetime.strptime(data["NextScheduleWeekDate"], "%Y-%m-%d").date()
         if "StartTime" in data:
             timeChange = True
             data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
@@ -306,11 +319,11 @@ def update_session():
                 if start_time < datetime.now():
                     continue
                 end_time = datetime.strptime(event_json["EventDateTimeEnd"], "%Y-%m-%d %H:%M")
-                start_time = start_time.replace(year=data["StartWeekDate"].year, month=data["StartWeekDate"].month,
-                                                day=data["StartWeekDate"].day, hour=data["StartTime"].hour,
+                start_time = start_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
+                                                day=data["NextScheduleWeekDate"].day, hour=data["StartTime"].hour,
                                                 minute=data["StartTime"].minute)
-                end_time = end_time.replace(year=data["StartWeekDate"].year, month=data["StartWeekDate"].month,
-                                            day=data["StartWeekDate"].day, hour=data["EndTime"].hour,
+                end_time = end_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
+                                            day=data["NextScheduleWeekDate"].day, hour=data["EndTime"].hour,
                                             minute=data["EndTime"].minute)
                 event_json["EventDateTimeStart"] = start_time
                 event_json["EventDateTimeEnd"] = end_time
@@ -381,9 +394,9 @@ def new_event():
         if status != 200:
             return {}, 500
         del data["BusinessID"]
-        week_start = datetime.strptime(session["StartWeekDate"], "%Y-%m-%d")
-        week_start = week_start + timedelta(days=session["WeekdayInt"] - week_start.weekday() - 1)
-        del data["StartWeekDate"]
+        week_start = datetime.strptime(session["NextScheduleWeekDate"], "%Y-%m-%d")
+        week_start = week_start + timedelta(days=session["Weekday"] - week_start.weekday() - 1)
+        del data["NextScheduleWeekDate"]
 
         start_time = datetime.strptime(session["StartTime"], "%H:%M")
         start_time = datetime(week_start.year, week_start.month, week_start.day, start_time.hour, start_time.minute)

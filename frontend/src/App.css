@@ -2,6 +2,18 @@
   text-align: center;
   background-color: #282c34;
   min-height: 100vh;
+  color: #d7dbe5;
+}
+
+table {
+  justify-content: center;
+  display: block;
+  overflow: hidden;
+  table-layout: auto;
+  border-collapse: collapse;
+  white-space: nowrap;
+  margin: auto;
+  overflow-x: auto;
 }
 
 a {

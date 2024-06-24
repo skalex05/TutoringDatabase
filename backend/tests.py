@@ -277,11 +277,13 @@ def test_new_session(app):
         test_json = {"StudentID": student_id,
                      "SessionName": "Test Session",
                      "Subject": "Math",
-                     "WeekdayInt": 1,
-                     "StartWeekDate": "2024-02-26",
+                     "Weekday": 1,
+                     "NextScheduleWeekDate": "2024-02-26",
                      "StartTime": "12:00",
                      "EndTime": "13:00",
-                     "Pay": 20}
+                     "Pay": 20,
+                     "Schedule": True,
+                     "Notes": "Very educational session"}
 
         response = test_client.post("/new_session", json=test_json)
         assert response.status_code == 200
@@ -313,7 +315,6 @@ def test_get_session(app):
 
 def test_update_session(app):
     test_new_student(app)
-    test_new_event(app)
     with app.app_context():
         test_client = app.test_client()
         response = test_client.get("/get_session")
@@ -325,11 +326,13 @@ def test_update_session(app):
                      "StudentID": student_id,
                      "SessionName": "Test Session",
                      "Subject": "Math",
-                     "WeekdayInt": 1,
-                     "StartWeekDate": "2024-02-26",
+                     "Weekday": 1,
+                     "NextScheduleWeekDate": "2024-02-26",
                      "StartTime": "12:00",
                      "EndTime": "13:00",
-                     "Pay": 20}
+                     "Pay": 20.0,
+                     "Schedule": False,
+                     "Notes": "Tough days"}
         response = test_client.put("/update_session", json=test_json)
         assert response.status_code == 200
         assert "Session" in response.json

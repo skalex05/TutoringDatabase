@@ -5,6 +5,9 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import './index.css';
 import Main from './Pages/Main/Main';
 import Businesses from './Pages/Businesses/BusinessView.js';
+import Parents from './Pages/Parents/ParentsView.js';
+import Students from './Pages/Students/StudentsView.js';
+import Sessions from './Pages/Sessions/SessionsView.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -13,6 +16,9 @@ root.render(
         <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/businesses" element={<Businesses />} />
+            <Route path="/parents" element={<Parents />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/sessions" element={<Sessions />} />
         </Routes>
     </Router>
   </React.StrictMode>

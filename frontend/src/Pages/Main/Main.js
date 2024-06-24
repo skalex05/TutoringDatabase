@@ -1,5 +1,6 @@
 import logo from '../../logo.svg';
 import '../../App.css';
+import {Link} from "react-router-dom";
 
 
 function Main() {
@@ -8,15 +9,15 @@ function Main() {
         <header className="App-header">
           Tutoring Database
         </header>
-        <ul>
-            <li><a href="/businesses">View Businesses</a> </li>
-
-            <li> <a href="/businesses">View Parents</a> </li>
-
-            <li> <a href="/businesses">View Students</a> </li>
-
-            <li> <a href="/businesses">View Sessions</a></li>
-        </ul>
+        <nav>
+            <Link to="/businesses" relative="path">View Businesses</Link>
+            <br/>
+            <Link to="/parents" relative="path">View Parents</Link>
+            <br/>
+            <Link to="/students" relative="path">View Students</Link>
+            <br/>
+            <Link to="/sessions" relative="path">View Sessions</Link>
+        </nav>
     </div>
   );
 }
