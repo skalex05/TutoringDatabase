@@ -1,8 +1,27 @@
-import React from "react";
+import React, {useEffect} from "react";
 import "./roweditor.css";
+import {addHours, format} from "date-fns";
+
+let timeZone = format(new Date(), "OOOO");
+
+function adjustTime(datetime, timestring) {
+    let time = timestring.split(":");
+    datetime.setHours(time[0]);
+    datetime.setMinutes(time[1]);
+}
+
+function adjustDate(datetime, datestring) {
+    let time = datestring.split("-");
+    datetime.setFullYear(time[0]);
+    datetime.setMonth(time[1]);
+    datetime.setDate(time[2]);
+}
 
 export const RowEditor = (props) => {
     const [errMsg, setErrMsg] = React.useState("");
+    const [startTimeUpdated, setStartTimeUpdated] = React.useState(false);
+    const [displayedStart, setDisplayedStart] = React.useState(props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "HH:mm") : "");
+    const [displayedEnd, setDisplayedEnd] = React.useState(props.rowValues["EndTime"] ? format(props.rowValues["EndTime"], "HH:mm") : "");
 
     if (props.rowValues["Name"] === undefined) {
         props.rowValues["Name"] = props.rowValues["FirstName"] !== undefined && props.rowValues["LastName"] !== undefined ? props.rowValues["FirstName"] + " " + props.rowValues["LastName"] : "";
@@ -11,10 +30,33 @@ export const RowEditor = (props) => {
         props.rowValues["StudentID"] = props.students[0]["StudentID"];
     }
 
+    if (props.rowValues["NextScheduleWeekDate"] === undefined) {
+        props.rowValues["NextScheduleWeekDate"] = new Date().toISOString().split("T")[0];
+    }
+
+    if (props.rowValues["Schedule"] === undefined){
+        props.rowValues["Schedule"] = true;
+    }
+
+    if (props.rowValues["StartTime"] === undefined) {
+        props.rowValues["StartTime"] = new Date();
+        props.rowValues["StartTime"].setMilliseconds(0);
+        props.rowValues["StartTime"].setSeconds(0);
+        setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
+        props.rowValues["EndTime"] = addHours(props.rowValues["StartTime"],1);
+        setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));
+    }
+
+    if (startTimeUpdated){
+        props.rowValues["EndTime"] = addHours(props.rowValues["StartTime"],1);
+        setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"))
+        setStartTimeUpdated(false);
+    }
+
     const onSubmit = (e) => {
         e.preventDefault();
 
-        for (const field of ["SessionName", "StudentID","Subject", "Weekday","NextScheduleWeekDate","StartTime","EndTime","Pay","Schedule"]) {
+        for (const field of ["SessionName", "StudentID","Subject","NextScheduleWeekDate","StartTime","EndTime","Pay","Schedule"]) {
             if (props.rowValues[field] === undefined || props.rowValues[field] === "") {
                 setErrMsg("Please fill out all fields");
                 return;
@@ -25,11 +67,9 @@ export const RowEditor = (props) => {
             "SessionID": props.rowValues["SessionID"],
             "SessionName": props.rowValues["SessionName"],
             "StudentID": props.rowValues["StudentID"],
-            "Weekday": props.rowValues["Weekday"],
             "Subject": props.rowValues["Subject"],
-            "NextScheduleWeekDate": props.rowValues["NextScheduleWeekDate"],
-            "StartTime": props.rowValues["StartTime"],
-            "EndTime": props.rowValues["EndTime"],
+            "StartTime":  props.rowValues["StartTime"].toISOString(),
+            "EndTime": props.rowValues["EndTime"].toISOString(),
             "Pay": props.rowValues["Pay"],
             "Schedule": props.rowValues["Schedule"]
         }
@@ -73,28 +113,31 @@ export const RowEditor = (props) => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="Weekday">Weekday</label>
-                        <select defaultValue={props.rowValues["Weekday"]} id="Weekday" name="Weekday"
-                                onChange={(e) => props.rowValues["Weekday"] = e.target.value}>
-                            {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day, i) => {
-                                return <option value={i}>{day}</option>
-                            })}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Next Schedule Date</label>
-                        <input type="date" defaultValue={props.rowValues["NextScheduleWeekDate"]} id="NextScheduleWeekDate" name="NextScheduleWeekDate"
-                               onChange={(e) => props.rowValues["NextScheduleWeekDate"] = e.target.value}/>
+                        <label>Start Date</label>
+                        <input type="date" defaultValue={props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "yyyy-MM-dd") : ""} id="StartDate" name="StartDate"
+                               onChange={(e) => {
+                                   adjustDate(props.rowValues["StartTime"], e.target.value);
+                                   adjustDate(props.rowValues["EndTime"],e.target.value);
+                                   setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
+                                   setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}
+                        }/>
                     </div>
                     <div>
                         <label>Start Time</label>
-                        <input type="time" defaultValue={props.rowValues["StartTime"]} id="StartTime" name="StartTime"
-                                 onChange={(e) => props.rowValues["StartTime"] = e.target.value}/>
+                        <input type="time" value={displayedStart} id="StartTime" name="StartTime"
+                                 onChange={(e) => {
+                                     adjustTime(props.rowValues["StartTime"],e.target.value);
+                                     setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
+                                     setStartTimeUpdated(true);}}/>
+                        <label>{timeZone}</label>
                     </div>
                     <div>
                         <label>End Time</label>
-                        <input type="time" defaultValue={props.rowValues["EndTime"]} id="EndTime" name="EndTime"
-                               onChange={(e) => props.rowValues["EndTime"] = e.target.value}/>
+                        <input type="time" value={displayedEnd} id="EndTime" name="EndTime"
+                               onChange={(e) => {
+                                   adjustTime(props.rowValues["EndTime"],e.target.value);
+                                   setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}}/>
+                        <label>{timeZone}</label>
                     </div>
                     <div>
                         <label htmlFor="Pay">Pay</label>

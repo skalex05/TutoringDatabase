@@ -1,11 +1,13 @@
 from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource
 from datetime import datetime
 class Parent(db.Model):
+    __tablename__ = "parent"
     ParentID = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
     Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
+
     students = db.relationship("Student", backref=db.backref("parent"))
 
     def to_json(self):
@@ -17,12 +19,14 @@ class Parent(db.Model):
             "PhoneNumber": self.PhoneNumber
         }
 class Business(db.Model):
+    __tablename__ = "business"
     BusinessID = db.Column(db.Integer, primary_key=True)
     BusinessName = db.Column(db.String(40))
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
     Email = db.Column(db.String(50))
     PhoneNumber = db.Column(db.String(11))
+
     students = db.relationship("Student", backref=db.backref("business"))
 
     def to_json(self):
@@ -37,6 +41,7 @@ class Business(db.Model):
 
 
 class Student(db.Model):
+    __tablename__ = "student"
     StudentID = db.Column(db.Integer, primary_key=True)
     FirstName = db.Column(db.String(20))
     LastName = db.Column(db.String(40))
@@ -45,6 +50,7 @@ class Student(db.Model):
     PhoneNumber = db.Column(db.String(11))
     BusinessID = db.Column(db.Integer, db.ForeignKey("business.BusinessID"), nullable=False)
     ParentID = db.Column(db.Integer, db.ForeignKey("parent.ParentID"), nullable=False)
+
     sessions = db.relationship("Session", backref=db.backref("student"))
 
     def to_json(self):
@@ -61,17 +67,17 @@ class Student(db.Model):
 
 
 class Session(db.Model):
+    __tablename__ = "session"
     SessionID = db.Column(db.Integer, primary_key=True)
     SessionName = db.Column(db.String(50))
     StudentID = db.Column(db.Integer, db.ForeignKey("student.StudentID"), nullable=False)
     Subject = db.Column(db.String(50))
-    Weekday = db.Column(db.Integer)
-    NextScheduleWeekDate = db.Column(db.DateTime)
-    StartTime = db.Column(db.Time)
-    EndTime = db.Column(db.Time)
+    StartTime = db.Column(db.DateTime)
+    EndTime = db.Column(db.DateTime)
     Pay = db.Column(db.Float)
     Schedule = db.Column(db.Boolean)
     Notes = db.Column(db.String(200))
+
     events = db.relationship("Event", backref=db.backref("session"))
 
     def to_json(self):
@@ -80,10 +86,8 @@ class Session(db.Model):
             "SessionName": self.SessionName,
             "StudentID": self.StudentID,
             "Subject": self.Subject,
-            "Weekday": self.Weekday,
-            "NextScheduleWeekDate": self.NextScheduleWeekDate.strftime("%Y-%m-%d") if self.NextScheduleWeekDate else None,
-            "StartTime": self.StartTime.strftime("%H:%M") if self.StartTime else None,
-            "EndTime": self.EndTime.strftime("%H:%M") if self.EndTime else None,
+            "StartTime": self.StartTime.strftime("%Y-%m-%dT%H:%M:%S.000Z") if self.StartTime else None,
+            "EndTime": self.EndTime.strftime("%Y-%m-%dT%H:%M:%S.000Z") if self.EndTime else None,
             "Pay": self.Pay,
             "Schedule": self.Schedule,
             "Notes": self.Notes
@@ -91,6 +95,7 @@ class Session(db.Model):
 
 
 class Event(db.Model):
+    __tablename__ = "event"
     EventID = db.Column(db.Integer, primary_key=True)
     SessionID = db.Column(db.Integer, db.ForeignKey("session.SessionID"), nullable=False)
     EventName = db.Column(db.String(50))

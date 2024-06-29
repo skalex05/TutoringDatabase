@@ -1,6 +1,10 @@
 import {useEffect, useState} from "react";
 import {BsFillTrashFill, BsFillPencilFill} from "react-icons/bs";
 import {RowEditor} from "./RowEditor";
+import {format} from "date-fns";
+
+let timeZone = format(new Date(), "OOOO");
+
 
 function SessionTable (props) {
     const [showEditor, setShowEditor] = useState(false);
@@ -19,6 +23,10 @@ function SessionTable (props) {
             }
         ).then(response => {
             response.json().then(data => {
+                for (let session of data["Session"]) {
+                    session["StartTime"] =  new Date(session["StartTime"]);
+                    session["EndTime"] = new Date(session["EndTime"]);
+                }
                 setSessions(data["Session"]);
             });
         }).catch(err => {
@@ -95,6 +103,16 @@ function SessionTable (props) {
         fetchData();
     }, []);
 
+    let rowValues = {};
+    if (editorMode === "edit") {
+        let session = sessions.find(session => session["SessionID"] === editSessionID);
+        if (session !== undefined) {
+            rowValues = JSON.parse(JSON.stringify(session));
+            rowValues["StartTime"] = session["StartTime"];
+            rowValues["EndTime"] = session["EndTime"];
+        }
+    }
+
     return <div>
         {showEditor && <RowEditor
             editorMode={editorMode}
@@ -102,7 +120,7 @@ function SessionTable (props) {
             update={updateSession}
             add={addSession}
             students={students}
-            rowValues = {editorMode === "edit" ? JSON.parse(JSON.stringify(sessions.find(session => session["SessionID"] === editSessionID))) : {}}
+            rowValues = {rowValues}
         />}
         <table>
             <thead>
@@ -110,31 +128,28 @@ function SessionTable (props) {
                     <th>Session Title</th>
                     <th>Subject</th>
                     <th>Student</th>
-                    <th>Weekday</th>
-                    <th>Next Schedule Date</th>
+                    <th>Next Event</th>
                     <th>Start Time</th>
-                    <th>End Time Time</th>
+                    <th>End Time</th>
                     <th>Pay</th>
                     <th>Schedule?</th>
                 </tr>
                 {sessions.map(session => {
                     const student = students.find(student => student["StudentID"] === session["StudentID"]);
-                    console.log("The Student: ",student);
                     return <tr>
                         <td>{session["SessionName"]}</td>
                         <td>{session["Subject"]}</td>
                         {student === undefined ? <td>Student Not Found</td> :
                         <td>{student["FirstName"]+" "+student["LastName"]}</td>
                         }
-                        <td>{["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][session["Weekday"]]}</td>
-                        <td>{session["NextScheduleWeekDate"]}</td>
-                        <td>{session["StartTime"]}</td>
-                        <td>{session["EndTime"]}</td>
+                        <td>{format(session["StartTime"], "cccc do LLLL y")}</td>
+                        <td>{format(session["StartTime"], "HH:mm")}</td>
+                        <td>{format(session["EndTime"], "HH:mm")}</td>
                         <td>{session["Pay"]}</td>
-                        <td>{session["Schedule"]}</td>
+                        <td>{<input type="checkbox" checked={session["Schedule"]} disabled={true}/>}</td>
                         <td>
                             <span>
-                                <button onClick={() => deleteSession(session)}>
+                                <button onClick={() => {setSessions(sessions.filter((sess) => sess === session)) ;deleteSession(session)}}>
                                     <BsFillTrashFill/></button>
                                 <button onClick={() => {
                                     setEditSessionID(session["SessionID"]);
@@ -152,6 +167,7 @@ function SessionTable (props) {
             setShowEditor(true);
             setEditorMode("add");
         }}>Add</button>
+        <div>Timezone: {timeZone}</div>
     </div>;
 }
 

@@ -20,7 +20,6 @@ function StudentTable (props) {
             }
         ).then(response => {
             response.json().then(data => {
-                console.log(data["Student"])
                 setStudents(data["Student"]);
             });
         }).catch(err => {

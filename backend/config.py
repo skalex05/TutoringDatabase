@@ -61,10 +61,16 @@ if os.environ.get("TESTMODE") != "0":
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     print("Running in test mode")
 else:
-    raise Exception("Careful now!")
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{PATH}\\TutoringDatabase.db"
     print("Running in production mode")
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ECHO"] = True
+
 
 # Initialize the database
-db = SQLAlchemy(app, )
+db = SQLAlchemy(app)
+
+with app.app_context():
+    db.session.execute(db.text("PRAGMA foreign_keys = ON"))
+    db.session.commit()

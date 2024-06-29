@@ -1,3 +1,4 @@
+import sqlalchemy.exc
 from flask import request, jsonify
 from tables import (Parent, Business, Student, Session, Event,
                     db, app,
@@ -60,13 +61,11 @@ def delete(table, id_str):
     """
     try:
         data = request.get_json()
-        rows = table.query.filter_by(**{table.__name__ + "ID": data[id_str]})
-        json = jsonify({table.__name__: [row.to_json() for row in rows]})
-        rows.delete()
+        db.session.execute(table.__table__.delete().where(getattr(table, table.__name__+"ID") == data[id_str]))
         db.session.commit()
-        for row in Student.query.all():
-            print(row.to_json())
-        return json, 200
+        return {}, 200
+    except sqlalchemy.exc.IntegrityError:
+        return {}, 400
     except Exception as e:
         traceback.print_exception(e)
         return {}, 500
@@ -269,9 +268,13 @@ def new_session():
     """
     try:
         data = request.get_json()
-        data["NextScheduleWeekDate"] = datetime.strptime(data["NextScheduleWeekDate"], "%Y-%m-%d").date()
-        data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
-        data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
+        try:
+            print(data["StartTime"])
+            print(data["EndTime"])
+            data["StartTime"] = datetime.strptime(data["StartTime"], "%Y-%m-%dT%H:%M:00.000Z")
+            data["EndTime"] = datetime.strptime(data["EndTime"], "%Y-%m-%dT%H:%M:00.000Z")
+        except ValueError:
+            return {}, 400
     except Exception as e:
         traceback.print_exception(e)
         return {}, 500
@@ -303,40 +306,40 @@ def update_session():
     try:
         data = request.get_json()
         timeChange = False
-        if "NextScheduleWeekDate" in data:
-            timeChange = True
-            data["NextScheduleWeekDate"] = datetime.strptime(data["NextScheduleWeekDate"], "%Y-%m-%d").date()
-        if "StartTime" in data:
-            timeChange = True
-            data["StartTime"] = datetime.strptime(data["StartTime"], "%H:%M").time()
-        if "EndTime" in data:
-            timeChange = True
-            data["EndTime"] = datetime.strptime(data["EndTime"], "%H:%M").time()
-        if timeChange:
-            for event in Event.query.filter_by(**{"SessionID": data["SessionID"]}).all():
-                event_json = event.to_json()
-                start_time = datetime.strptime(event_json["EventDateTimeStart"], "%Y-%m-%d %H:%M")
-                if start_time < datetime.now():
-                    continue
-                end_time = datetime.strptime(event_json["EventDateTimeEnd"], "%Y-%m-%d %H:%M")
-                start_time = start_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
-                                                day=data["NextScheduleWeekDate"].day, hour=data["StartTime"].hour,
-                                                minute=data["StartTime"].minute)
-                end_time = end_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
-                                            day=data["NextScheduleWeekDate"].day, hour=data["EndTime"].hour,
-                                            minute=data["EndTime"].minute)
-                event_json["EventDateTimeStart"] = start_time
-                event_json["EventDateTimeEnd"] = end_time
-                eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
-                                     body={"start": {"dateTime": start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                                                     "timeZone": "Europe/London"},
-                                           "end": {"dateTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                                                   "timeZone": "Europe/London"}}).execute()
-
-                Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).update(data)
-                row = Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).first()
-                db.session.commit()
-                return jsonify({Event.__name__: [row.to_json()]}), 200
+        try:
+            if "StartTime" in data:
+                timeChange = True
+                data["StartTime"] = datetime.strptime(data["StartTime"], "%Y-%m-%dT%H:%M:00.000Z")
+            if "EndTime" in data:
+                timeChange = True
+                data["EndTime"] = datetime.strptime(data["EndTime"], "%Y-%m-%dT%H:%M:00.000Z")
+        except ValueError:
+            return {}, 400
+        # if timeChange:
+        #     for event in Event.query.filter_by(**{"SessionID": data["SessionID"]}).all():
+        #         event_json = event.to_json()
+        #         start_time = datetime.strptime(event_json["EventDateTimeStart"], "%Y-%m-%d %H:%M")
+        #         if start_time < datetime.now():
+        #             continue
+        #         end_time = datetime.strptime(event_json["EventDateTimeEnd"], "%Y-%m-%d %H:%M")
+        #         start_time = start_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
+        #                                         day=data["NextScheduleWeekDate"].day, hour=data["StartTime"].hour,
+        #                                         minute=data["StartTime"].minute)
+        #         end_time = end_time.replace(year=data["NextScheduleWeekDate"].year, month=data["NextScheduleWeekDate"].month,
+        #                                     day=data["NextScheduleWeekDate"].day, hour=data["EndTime"].hour,
+        #                                     minute=data["EndTime"].minute)
+        #         event_json["EventDateTimeStart"] = start_time
+        #         event_json["EventDateTimeEnd"] = end_time
+        #         eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
+        #                              body={"start": {"dateTime": start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        #                                              "timeZone": "Europe/London"},
+        #                                    "end": {"dateTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        #                                            "timeZone": "Europe/London"}}).execute()
+        #
+        #         Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).update(data)
+        #         row = Event.query.filter_by(**{Event.__name__ + "ID": data[Event.__name__ + "ID"]}).first()
+        #         db.session.commit()
+                #return jsonify({Event.__name__: [row.to_json()]}), 200
 
         Session.query.filter_by(**{Session.__name__ + "ID": data[Session.__name__ + "ID"]}).update(data)
         row = Session.query.filter_by(**{Session.__name__ + "ID": data[Session.__name__ + "ID"]}).first()
@@ -509,6 +512,9 @@ def del_event():
 # Create DB if one does not already exist
 with app.app_context():
     db.create_all()
+    new(Parent, {"FirstName": "John", "LastName": "Doe", "Email": "jd@gmail.com", "PhoneNumber":1234})
+    new(Business, {"BusinessName": "Tutoring", "FirstName": "Jamal", "LastName": "Dequavious", "Email": "jamal@mail.com", "PhoneNumber":1234})
+    new(Student, {"FirstName": "Jane", "LastName": "Dale", "YearGrade": 12, "Email": "dale@mailo.co", "PhoneNumber":1234, "BusinessID": 1, "ParentID": 1})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
