@@ -11,9 +11,6 @@ function ParentTable (props) {
     const fetchData = async () => {
         fetch('http://localhost:5000/get_parent',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {

@@ -16,9 +16,6 @@ function SessionTable (props) {
     const fetchData = async () => {
         fetch('http://localhost:5000/get_session',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {
@@ -35,9 +32,6 @@ function SessionTable (props) {
 
         fetch('http://localhost:5000/get_student',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {

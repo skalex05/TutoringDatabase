@@ -8,6 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+TIME_FORMAT = "%Y-%m-%dT%H:%M:00.000Z"
 PATH = os.path.dirname(os.path.realpath(__file__))
 CLIENT_SECRET_FILE = "client_secret.json"
 # Required scopes for the application from Google apis
@@ -65,7 +66,7 @@ else:
     print("Running in production mode")
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = True
+app.config["SQLALCHEMY_ECHO"] = False
 
 
 # Initialize the database

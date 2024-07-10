@@ -1,4 +1,4 @@
-from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource
+from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource, TIME_FORMAT
 from datetime import datetime
 class Parent(db.Model):
     __tablename__ = "parent"
@@ -86,8 +86,8 @@ class Session(db.Model):
             "SessionName": self.SessionName,
             "StudentID": self.StudentID,
             "Subject": self.Subject,
-            "StartTime": self.StartTime.strftime("%Y-%m-%dT%H:%M:%S.000Z") if self.StartTime else None,
-            "EndTime": self.EndTime.strftime("%Y-%m-%dT%H:%M:%S.000Z") if self.EndTime else None,
+            "StartTime": self.StartTime.strftime(TIME_FORMAT) if self.StartTime else None,
+            "EndTime": self.EndTime.strftime(TIME_FORMAT) if self.EndTime else None,
             "Pay": self.Pay,
             "Schedule": self.Schedule,
             "Notes": self.Notes
@@ -99,26 +99,27 @@ class Event(db.Model):
     EventID = db.Column(db.Integer, primary_key=True)
     SessionID = db.Column(db.Integer, db.ForeignKey("session.SessionID"), nullable=False)
     EventName = db.Column(db.String(50))
-    EventDateTimeStart = db.Column(db.DateTime)
-    EventDateTimeEnd = db.Column(db.DateTime)
+    StartTime = db.Column(db.DateTime)
+    EndTime = db.Column(db.DateTime)
     GoogleCalendarID = db.Column(db.String(50))
     GoogleEventID = db.Column(db.String(50))
     GoogleMeetLink = db.Column(db.String(50))
     LinkEmailSent = db.Column(db.Boolean)
-    FollowupEmailSent = db.Column(db.Boolean)
+    DebriefEmailSent = db.Column(db.Boolean)
     Paid = db.Column(db.Boolean)
+    Rescheduled = db.Column(db.Boolean)
 
     def to_json(self):
         return {
             "EventID": self.EventID,
             "SessionID": self.SessionID,
             "EventName": self.EventName,
-            "EventDateTimeStart": self.EventDateTimeStart.strftime("%Y-%m-%d %H:%M") if self.EventDateTimeStart else None,
-            "EventDateTimeEnd": self.EventDateTimeEnd.strftime("%Y-%m-%d %H:%M") if self.EventDateTimeEnd else None,
+            "StartTime": self.StartTime.strftime(TIME_FORMAT) if self.StartTime else None,
+            "EndTime": self.EndTime.strftime(TIME_FORMAT) if self.EndTime else None,
             "GoogleCalendarID": self.GoogleCalendarID,
             "GoogleEventID": self.GoogleEventID,
             "GoogleMeetLink": self.GoogleMeetLink,
             "LinkEmailSent": self.LinkEmailSent,
-            "FollowupEmailSent": self.FollowupEmailSent,
+            "DebriefEmailSent": self.DebriefEmailSent,
             "Rescheduled": False
         }

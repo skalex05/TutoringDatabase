@@ -124,7 +124,7 @@ export const RowEditor = (props) => {
                     </div>
                     <div>
                         <label>Start Time</label>
-                        <input type="time" value={displayedStart} id="StartTime" name="StartTime"
+                        <input type="time" step="300" value={displayedStart} id="StartTime" name="StartTime"
                                  onChange={(e) => {
                                      adjustTime(props.rowValues["StartTime"],e.target.value);
                                      setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
@@ -133,7 +133,7 @@ export const RowEditor = (props) => {
                     </div>
                     <div>
                         <label>End Time</label>
-                        <input type="time" value={displayedEnd} id="EndTime" name="EndTime"
+                        <input type="time" step="300" value={displayedEnd} id="EndTime" name="EndTime"
                                onChange={(e) => {
                                    adjustTime(props.rowValues["EndTime"],e.target.value);
                                    setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}}/>

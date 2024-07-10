@@ -13,9 +13,6 @@ function StudentTable (props) {
     const fetchData = async () => {
         fetch('http://localhost:5000/get_student',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {
@@ -28,9 +25,6 @@ function StudentTable (props) {
 
         fetch('http://localhost:5000/get_parent',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {
@@ -43,9 +37,6 @@ function StudentTable (props) {
 
         fetch('http://localhost:5000/get_business',
             {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 method: 'GET'
             }
         ).then(response => {
