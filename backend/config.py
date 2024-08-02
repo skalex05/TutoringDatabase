@@ -8,6 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+SCHEDULE_X_WEEKS = 4
 TIME_FORMAT = "%Y-%m-%dT%H:%M:00.000Z"
 PATH = os.path.dirname(os.path.realpath(__file__))
 CLIENT_SECRET_FILE = "client_secret.json"
@@ -36,6 +37,8 @@ calendar_service = build("calendar", "v3", credentials=creds)
 calendarResource = calendar_service.calendars()
 eventsResource = calendar_service.events()
 gmail_service = build("gmail", "v1", credentials=creds)
+gmailUsersResource = gmail_service.users()
+gmailMessagesResource = gmailUsersResource.messages()
 
 try:
     with open("calendarId.txt", "r") as file:

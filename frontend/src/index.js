@@ -8,8 +8,12 @@ import Businesses from './Pages/Businesses/BusinessView.js';
 import Parents from './Pages/Parents/ParentsView.js';
 import Students from './Pages/Students/StudentsView.js';
 import Sessions from './Pages/Sessions/SessionsView.js';
+import EventEmail from './Pages/EventEmail/EventEmail.js';
+import * as PropTypes from "prop-types";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+EventEmail.propTypes = {children: PropTypes.node};
 root.render(
   <React.StrictMode>
     <Router>
@@ -19,6 +23,8 @@ root.render(
             <Route path="/parents" element={<Parents />} />
             <Route path="/students" element={<Students />} />
             <Route path="/sessions" element={<Sessions />} />
+            <Route path="/event-email/:eventID/:type" element={<EventEmail/>}/>
+            <Route path={"*"} element={<h1>404 Not Found</h1>} />
         </Routes>
     </Router>
   </React.StrictMode>

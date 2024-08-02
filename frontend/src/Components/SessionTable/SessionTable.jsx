@@ -122,7 +122,7 @@ function SessionTable (props) {
                     <th>Session Title</th>
                     <th>Subject</th>
                     <th>Student</th>
-                    <th>Next Event</th>
+                    <th>Schedule Weekly From</th>
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Pay</th>

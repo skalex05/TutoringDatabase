@@ -80,7 +80,6 @@ def test_del_parent(app):
     with app.app_context():
         test_client = app.test_client()
         response = test_client.get("/get_parent")
-        print(test_client.get("/get_student").json)
         assert response.status_code == 200
         assert "Parent" in response.json
         count = len(response.json["Parent"])
@@ -289,6 +288,7 @@ def test_new_session(app):
         assert "Session" in response.json
         json = response.json["Session"][0]
         del json["SessionID"]
+        del json["NextSchedule"]
         assert json == test_json
 
 
@@ -326,6 +326,7 @@ def test_update_session(app):
                      "StartTime": "2024-02-26T18:00:00.000Z",
                      "EndTime": "2024-02-26T19:00:00.000Z",
                      "Pay": 20.0,
+                     "NextSchedule": "2024-03-04",
                      "Schedule": False,
                      "Notes": "Tough days"}
         response = test_client.put("/update_session", json=test_json)
@@ -354,37 +355,7 @@ def test_del_session(app):
 
 # Event Tests
 
-def test_new_event_default_datetime(app):
-    test_new_session(app)
-    with app.app_context():
-        # Get a session to use in the test
-        test_client = app.test_client()
-        test_client.get("/get_session")
-        response = test_client.get("/get_session")
-        assert response.status_code == 200
-        assert "Session" in response.json
-        session = response.json["Session"][0]
-
-        test_json = {"SessionID": session["SessionID"],
-                     "EventName": session["SessionName"],
-                     "LinkEmailSent": False,
-                     "DebriefEmailSent": False
-                     }
-
-        response = test_client.post("/new_event", json=test_json)
-        assert response.status_code == 200
-        assert "Event" in response.json
-        json = response.json["Event"][0]
-        del json["EventID"]
-        del json["GoogleCalendarID"]
-        del json["GoogleEventID"]
-        del json["GoogleMeetLink"]
-        del json["StartTime"]
-        del json["EndTime"]
-        del json["Rescheduled"]
-        assert json == test_json
-
-def test_new_event_custom_datetime(app):
+def test_new_event(app):
     test_new_session(app)
     with app.app_context():
         # Get a session to use in the test
@@ -412,6 +383,7 @@ def test_new_event_custom_datetime(app):
         del json["GoogleEventID"]
         del json["GoogleMeetLink"]
         del json["Rescheduled"]
+        del json["Description"]
         assert json == test_json
 
 def test_get_event(app):

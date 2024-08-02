@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import "./roweditor.css";
 import {addHours, format} from "date-fns";
 
@@ -13,15 +13,15 @@ function adjustTime(datetime, timestring) {
 function adjustDate(datetime, datestring) {
     let time = datestring.split("-");
     datetime.setFullYear(time[0]);
-    datetime.setMonth(time[1]);
+    datetime.setMonth(time[1]-1);
     datetime.setDate(time[2]);
 }
 
 export const RowEditor = (props) => {
-    const [errMsg, setErrMsg] = React.useState("");
-    const [startTimeUpdated, setStartTimeUpdated] = React.useState(false);
-    const [displayedStart, setDisplayedStart] = React.useState(props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "HH:mm") : "");
-    const [displayedEnd, setDisplayedEnd] = React.useState(props.rowValues["EndTime"] ? format(props.rowValues["EndTime"], "HH:mm") : "");
+    const [errMsg, setErrMsg] = useState("");
+    const [startTimeUpdated, setStartTimeUpdated] = useState(false);
+    const [displayedStart, setDisplayedStart] = useState(props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "HH:mm") : "");
+    const [displayedEnd, setDisplayedEnd] = useState(props.rowValues["EndTime"] ? format(props.rowValues["EndTime"], "HH:mm") : "");
 
     if (props.rowValues["Name"] === undefined) {
         props.rowValues["Name"] = props.rowValues["FirstName"] !== undefined && props.rowValues["LastName"] !== undefined ? props.rowValues["FirstName"] + " " + props.rowValues["LastName"] : "";

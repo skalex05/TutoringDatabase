@@ -1,0 +1,37 @@
+.EventViewContainer {
+    position: fixed;
+    z-index: 5;
+    left:0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Description {
+    white-space: pre-line;
+}
+
+.Notes {
+    white-space: pre-line;
+    resize: none;
+    height: 200px;
+    width: 80%;
+}
+
+.EventView {
+    background-color: #44494f;
+    padding: 20px;
+    border-radius: 5px;
+    width: 40%;
+    min-width: 300px;
+    z-index: 2;
+}
+
+.Error-Message {
+    color: red;
+    margin-top: 5px;
+}

@@ -1,5 +1,9 @@
-from config import db, app, CALENDAR_ID, calendar_service, gmail_service, eventsResource, calendarResource, TIME_FORMAT
+from config import (db, app,
+                    CALENDAR_ID, calendar_service, eventsResource, gmailMessagesResource,
+                    TIME_FORMAT, SCHEDULE_X_WEEKS)
 from datetime import datetime
+
+
 class Parent(db.Model):
     __tablename__ = "parent"
     ParentID = db.Column(db.Integer, primary_key=True)
@@ -18,6 +22,8 @@ class Parent(db.Model):
             "Email": self.Email,
             "PhoneNumber": self.PhoneNumber
         }
+
+
 class Business(db.Model):
     __tablename__ = "business"
     BusinessID = db.Column(db.Integer, primary_key=True)
@@ -72,6 +78,7 @@ class Session(db.Model):
     SessionName = db.Column(db.String(50))
     StudentID = db.Column(db.Integer, db.ForeignKey("student.StudentID"), nullable=False)
     Subject = db.Column(db.String(50))
+    NextSchedule = db.Column(db.Date)
     StartTime = db.Column(db.DateTime)
     EndTime = db.Column(db.DateTime)
     Pay = db.Column(db.Float)
@@ -89,6 +96,7 @@ class Session(db.Model):
             "StartTime": self.StartTime.strftime(TIME_FORMAT) if self.StartTime else None,
             "EndTime": self.EndTime.strftime(TIME_FORMAT) if self.EndTime else None,
             "Pay": self.Pay,
+            "NextSchedule": self.NextSchedule.strftime("%Y-%m-%d") if self.NextSchedule else None,
             "Schedule": self.Schedule,
             "Notes": self.Notes
         }
@@ -99,6 +107,7 @@ class Event(db.Model):
     EventID = db.Column(db.Integer, primary_key=True)
     SessionID = db.Column(db.Integer, db.ForeignKey("session.SessionID"), nullable=False)
     EventName = db.Column(db.String(50))
+    Description = db.Column(db.String(255))
     StartTime = db.Column(db.DateTime)
     EndTime = db.Column(db.DateTime)
     GoogleCalendarID = db.Column(db.String(50))
@@ -114,6 +123,7 @@ class Event(db.Model):
             "EventID": self.EventID,
             "SessionID": self.SessionID,
             "EventName": self.EventName,
+            "Description": self.Description,
             "StartTime": self.StartTime.strftime(TIME_FORMAT) if self.StartTime else None,
             "EndTime": self.EndTime.strftime(TIME_FORMAT) if self.EndTime else None,
             "GoogleCalendarID": self.GoogleCalendarID,
@@ -121,5 +131,6 @@ class Event(db.Model):
             "GoogleMeetLink": self.GoogleMeetLink,
             "LinkEmailSent": self.LinkEmailSent,
             "DebriefEmailSent": self.DebriefEmailSent,
-            "Rescheduled": False
+            "Rescheduled": self.Rescheduled,
+            "Paid": self.Paid
         }
