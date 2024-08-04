@@ -89,4 +89,3 @@ Like the business table, parents may be added and modified with appropriate form
 ![Invite.png](README-IMAGES%2FInvite.png)
 ![Reminder.png](README-IMAGES%2FReminder.png)
 ![Debrief.png](README-IMAGES%2FDebrief.png)
-
