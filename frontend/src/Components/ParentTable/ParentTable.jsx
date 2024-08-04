@@ -1,12 +1,15 @@
 import {useEffect, useState} from "react";
 import {BsFillTrashFill, BsFillPencilFill} from "react-icons/bs";
 import {RowEditor} from "./RowEditor";
+import "../../App.css";
+import {useNavigate} from "react-router-dom";
 
 function ParentTable (props) {
     const [showEditor, setShowEditor] = useState(false);
     const [editorMode, setEditorMode] = useState("Add");
     const [editParentID, setEditParentID] = useState(null);
     const [parents , setParents] = useState([]);
+    const nav = useNavigate();
 
     const fetchData = async () => {
         fetch('http://localhost:5000/get_parent',
@@ -88,19 +91,20 @@ function ParentTable (props) {
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
+                    <th className="vline">Email</th>
+                    <th className="vline">Phone Number</th>
+                    <th className="vline"></th>
                 </tr>
                 {parents.map(parent => {
                     return <tr>
                         <td>{parent["FirstName"]+" "+parent["LastName"]}</td>
-                        <td>{parent["Email"]}</td>
-                        <td>{parent["PhoneNumber"]}</td>
-                        <td>
+                        <td className="vline">{parent["Email"]}</td>
+                        <td className="vline">{parent["PhoneNumber"]}</td>
+                        <td className="vline">
                             <span>
-                                <button onClick={() => deleteParent(parent)}>
+                                <button className="button-first edit-icons" onClick={() => deleteParent(parent)}>
                                     <BsFillTrashFill/></button>
-                                <button onClick={() => {
+                                <button className="button-last edit-icons" onClick={() => {
                                     setEditParentID(parent["ParentID"]);
                                     setEditorMode("edit");
                                     setShowEditor(true);
@@ -112,10 +116,11 @@ function ParentTable (props) {
                 })}
             </thead>
         </table>
-        <button onClick={()=>{
+        <button className="back button-first " onClick={()=>nav("../")}>Back</button>
+        <button className="button-last" onClick={()=>{
             setShowEditor(true);
             setEditorMode("add");
-        }}>Add</button>
+        }}>Add Parent</button>
     </div>;
 }
 

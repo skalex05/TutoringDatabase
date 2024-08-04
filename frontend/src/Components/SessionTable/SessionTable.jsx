@@ -2,6 +2,8 @@ import {useEffect, useState} from "react";
 import {BsFillTrashFill, BsFillPencilFill} from "react-icons/bs";
 import {RowEditor} from "./RowEditor";
 import {format} from "date-fns";
+import "../../App.css";
+import {useNavigate} from "react-router-dom";
 
 let timeZone = format(new Date(), "OOOO");
 
@@ -12,6 +14,7 @@ function SessionTable (props) {
     const [editSessionID, setEditSessionID] = useState(null);
     const [students , setStudents] = useState([]);
     const [sessions, setSessions] = useState([]);
+    const nav = useNavigate();
 
     const fetchData = async () => {
         fetch('http://localhost:5000/get_session',
@@ -120,32 +123,33 @@ function SessionTable (props) {
             <thead>
                 <tr>
                     <th>Session Title</th>
-                    <th>Subject</th>
-                    <th>Student</th>
-                    <th>Schedule Weekly From</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Pay</th>
-                    <th>Schedule?</th>
+                    <th className="vline">Subject</th>
+                    <th className="vline">Student</th>
+                    <th className="vline">Weekday</th>
+                    <th className="vline">Start Time</th>
+                    <th className="vline">End Time</th>
+                    <th className="vline">Pay</th>
+                    <th className="vline">Scheduled</th>
+                    <th className="vline" style={{position: "sticky", right:-10}}></th>
                 </tr>
                 {sessions.map(session => {
                     const student = students.find(student => student["StudentID"] === session["StudentID"]);
                     return <tr>
                         <td>{session["SessionName"]}</td>
-                        <td>{session["Subject"]}</td>
+                        <td className="vline">{session["Subject"]}</td>
                         {student === undefined ? <td>Student Not Found</td> :
-                        <td>{student["FirstName"]+" "+student["LastName"]}</td>
+                        <td className="vline">{student["FirstName"]+" "+student["LastName"]}</td>
                         }
-                        <td>{format(session["StartTime"], "cccc do LLLL y")}</td>
-                        <td>{format(session["StartTime"], "HH:mm")}</td>
-                        <td>{format(session["EndTime"], "HH:mm")}</td>
-                        <td>{session["Pay"]}</td>
-                        <td>{<input type="checkbox" checked={session["Schedule"]} disabled={true}/>}</td>
-                        <td>
+                        <td className="vline">{format(session["StartTime"], "cccc")}</td>
+                        <td className="vline">{format(session["StartTime"], "HH:mm")}</td>
+                        <td className="vline">{format(session["EndTime"], "HH:mm")}</td>
+                        <td className="vline">{session["Pay"]}</td>
+                        <td className="vline">{<input type="checkbox" checked={session["Schedule"]} disabled={true}/>}</td>
+                        <td className="vline" style={{position: "sticky", right:-10}}>
                             <span>
-                                <button onClick={() => {setSessions(sessions.filter((sess) => sess === session)) ;deleteSession(session)}}>
+                                <button className="button-first edit-icons" onClick={() => {setSessions(sessions.filter((sess) => sess === session)) ;deleteSession(session)}}>
                                     <BsFillTrashFill/></button>
-                                <button onClick={() => {
+                                <button className="button-last edit-icons" onClick={() => {
                                     setEditSessionID(session["SessionID"]);
                                     setEditorMode("edit");
                                     setShowEditor(true);
@@ -157,11 +161,13 @@ function SessionTable (props) {
                 })}
             </thead>
         </table>
-        <button onClick={()=>{
+        <p className="time-zone-label">Timezone: {timeZone}</p>
+        <button className="back button-first" onClick={()=>nav("../")}>Back</button>
+        <button className="button-last" onClick={()=>{
             setShowEditor(true);
             setEditorMode("add");
-        }}>Add</button>
-        <div>Timezone: {timeZone}</div>
+        }}>Add Session</button>
+
     </div>;
 }
 

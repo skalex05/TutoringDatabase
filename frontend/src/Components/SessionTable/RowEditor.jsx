@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import "./roweditor.css";
+import "../../App.css";
 import {addHours, format} from "date-fns";
 
 let timeZone = format(new Date(), "OOOO");
@@ -92,64 +92,69 @@ export const RowEditor = (props) => {
             }
         }}>
             <div className= "RowEditor">
+                <h2 className="editHeader">{props.editorMode.charAt(0).toUpperCase()+props.editorMode.slice(1)} Session</h2>
                 <form onSubmit={onSubmit}>
-                    <div>
-                        <label htmlFor="SessionName">Session Title</label>
-                        <input type="text" defaultValue={props.rowValues["SessionName"]} id="SessionName" name="SessionName"
-                               onChange={(e) => props.rowValues["SessionName"] = e.target.value}/>
+                    <table style={{maxWidth:"100%", margin:"auto 10px"}}>
+                        <tr>
+                            <td><label htmlFor="SessionName">Session Title</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["SessionName"]} id="SessionName" name="SessionName"
+                                            onChange={(e) => props.rowValues["SessionName"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Subject">Subject</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["Subject"]} id="Subject" name="Subject"
+                                       onChange={(e) => props.rowValues["Subject"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Student">Student Name</label></td>
+                            <td><select defaultValue={props.rowValues["StudentID"]} id="StudentID" name="StudentID"
+                                    onChange={(e) => props.rowValues["StudentID"] = e.target.value}>
+                                {props.students.map(student => {
+                                    return <option value={student["StudentID"]}>{student["FirstName"]+" "+student["LastName"]}</option>
+                                })}
+                            </select></td>
+                        </tr>
+                        <tr>
+                            <td><label>Start Date</label></td>
+                            <td><input type="date" defaultValue={props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "yyyy-MM-dd") : ""} id="StartDate" name="StartDate"
+                                   onChange={(e) => {
+                                       adjustDate(props.rowValues["StartTime"], e.target.value);
+                                       adjustDate(props.rowValues["EndTime"],e.target.value);
+                                       setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
+                                       setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}
+                            }/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Start Time</label></td>
+                            <td><input type="time" step="300" value={displayedStart} id="StartTime" name="StartTime"
+                                     onChange={(e) => {
+                                         adjustTime(props.rowValues["StartTime"],e.target.value);
+                                         setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
+                                         setStartTimeUpdated(true);}}/>
+                                <label className="time-zone-label">{timeZone}</label></td>
+                        </tr>
+                        <tr>
+                            <td><label>End Time</label></td>
+                            <td><input type="time" step="300" value={displayedEnd} id="EndTime" name="EndTime"
+                                   onChange={(e) => {
+                                       adjustTime(props.rowValues["EndTime"],e.target.value);
+                                       setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}}/>
+                                <label className="time-zone-label">{timeZone}</label></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Pay">Pay</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["Pay"]} id="Pay" name="Pay"
+                                       onChange={(e) => props.rowValues["Pay"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Schedule">Schedule</label></td>
+                            <td><input type="checkbox" defaultChecked={props.rowValues["Schedule"]} id="Schedule" name="Schedule"
+                                       onChange={(e) => props.rowValues["Schedule"] = e.target.checked}/></td>
+                        </tr>
+                    </table>
+                    <div style={{textAlign: "center"}}>
+                        <button className="button-first button-last" type="submit">Submit</button>
                     </div>
-                    <div>
-                        <label htmlFor="Subject">Subject</label>
-                        <input type="text" defaultValue={props.rowValues["Subject"]} id="Subject" name="Subject"
-                               onChange={(e) => props.rowValues["Subject"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="Student">Student Name</label>
-                        <select defaultValue={props.rowValues["StudentID"]} id="StudentID" name="StudentID"
-                                onChange={(e) => props.rowValues["StudentID"] = e.target.value}>
-                            {props.students.map(student => {
-                                return <option value={student["StudentID"]}>{student["FirstName"]+" "+student["LastName"]}</option>
-                            })}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Start Date</label>
-                        <input type="date" defaultValue={props.rowValues["StartTime"] ? format(props.rowValues["StartTime"], "yyyy-MM-dd") : ""} id="StartDate" name="StartDate"
-                               onChange={(e) => {
-                                   adjustDate(props.rowValues["StartTime"], e.target.value);
-                                   adjustDate(props.rowValues["EndTime"],e.target.value);
-                                   setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
-                                   setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}
-                        }/>
-                    </div>
-                    <div>
-                        <label>Start Time</label>
-                        <input type="time" step="300" value={displayedStart} id="StartTime" name="StartTime"
-                                 onChange={(e) => {
-                                     adjustTime(props.rowValues["StartTime"],e.target.value);
-                                     setDisplayedStart(format(props.rowValues["StartTime"], "HH:mm"));
-                                     setStartTimeUpdated(true);}}/>
-                        <label>{timeZone}</label>
-                    </div>
-                    <div>
-                        <label>End Time</label>
-                        <input type="time" step="300" value={displayedEnd} id="EndTime" name="EndTime"
-                               onChange={(e) => {
-                                   adjustTime(props.rowValues["EndTime"],e.target.value);
-                                   setDisplayedEnd(format(props.rowValues["EndTime"], "HH:mm"));}}/>
-                        <label>{timeZone}</label>
-                    </div>
-                    <div>
-                        <label htmlFor="Pay">Pay</label>
-                        <input type="text" defaultValue={props.rowValues["Pay"]} id="Pay" name="Pay"
-                               onChange={(e) => props.rowValues["Pay"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="Schedule">Schedule</label>
-                        <input type="checkbox" defaultChecked={props.rowValues["Schedule"]} id="Schedule" name="Schedule"
-                               onChange={(e) => props.rowValues["Schedule"] = e.target.checked}/>
-                    </div>
-                    <button type="submit">Submit</button>
                 </form>
                 <div className="Error-Message">{errMsg}</div>
             </div>

@@ -145,77 +145,87 @@ function EventView (props) {
         <div className="EventViewContainer" >
             <div className="EventView" ref={ref}>
                 <h1>{props.event["EventName"]}</h1>
-                <p className="Description">{props.event["Description"]}</p>
-                <div>
-                    <label>Start Date</label>
-                    <input type="date" value={displayDate} id="StartDate" name="StartDate"
-                           onChange={(e) => {
-                               let sTemp = startTime;
-                               let eTemp = endTime;
-                               adjustDate(sTemp, e.target.value);
-                               adjustDate(eTemp, e.target.value);
-                               setStartTime(sTemp);
-                               setStartTime(eTemp);
-                               setDisplayDate(format(sTemp, "yyyy-MM-dd"));
-                               setRescheduled(true);
-                               setEventChanged(true);
-                           }}/>
-                </div>
-                <div>
-                    <label>Start Time</label>
-                    <input type="time" step="300" value={displayStartTime} id="StartTime" name="StartTime"
-                           onChange={(e) => {
-                               console.log(e.target.value)
-                               let time = startTime;
-                               adjustTime(time, e.target.value);
-                               setStartTime(time);
-                               setDisplayStartTime(format(time, "HH:mm"))
-                               console.log(time);
-                               setRescheduled(true);
-                               setEventChanged(true);
-                           }}/>
-                    <label>{timeZone}</label>
-                </div>
-                <div>
-                    <label>End Time</label>
-                    <input type="time" step="300" value={displayEndTime} id="EndTime" name="EndTime"
-                           onChange={(e) => {
-                               let time = endTime;
-                               adjustTime(time, e.target.value);
-                               setEndTime(time);
-                               setDisplayEndTime(format(time, "HH:mm"));
-                               setRescheduled(true);
-                               setEventChanged(true);
-                           }}/>
+                <h3 style={{margin:"2px auto"}}><a href={props.event["GoogleMeetLink"]}>Google Meet</a></h3><br/>
+                <p style={{margin: "2px auto"}} className="Description">{props.event["Description"]}</p>
+                <div className="Event-Info-Wrapper">
+                    <table className="Event-Datetime-Table">
+                        <tr>
+                            <td><label>Start Date</label></td>
+                            <td><input type="date" value={displayDate} id="StartDate" name="StartDate"
+                                   onChange={(e) => {
+                                       let sTemp = startTime;
+                                       let eTemp = endTime;
+                                       adjustDate(sTemp, e.target.value);
+                                       adjustDate(eTemp, e.target.value);
+                                       setStartTime(sTemp);
+                                       setStartTime(eTemp);
+                                       setDisplayDate(format(sTemp, "yyyy-MM-dd"));
+                                       setRescheduled(true);
+                                       setEventChanged(true);
+                                   }}/></td>
+                        </tr>
+                        <tr>
+                            <td><label>Start Time</label></td>
+                            <td><input type="time" step="300" value={displayStartTime} id="StartTime" name="StartTime"
+                                   onChange={(e) => {
+                                       console.log(e.target.value)
+                                       let time = startTime;
+                                       adjustTime(time, e.target.value);
+                                       setStartTime(time);
+                                       setDisplayStartTime(format(time, "HH:mm"))
+                                       console.log(time);
+                                       setRescheduled(true);
+                                       setEventChanged(true);
+                                   }}/><label className="time-zone-label">{timeZone}</label></td>
 
-                    <label>{timeZone}</label>
+                        </tr>
+                        <tr>
+                            <td><label>End Time</label></td>
+                            <td><input type="time" step="300" value={displayEndTime} id="EndTime" name="EndTime"
+                                   onChange={(e) => {
+                                       let time = endTime;
+                                       adjustTime(time, e.target.value);
+                                       setEndTime(time);
+                                       setDisplayEndTime(format(time, "HH:mm"));
+                                       setRescheduled(true);
+                                       setEventChanged(true);
+                                   }}/><label className="time-zone-label">{timeZone}</label></td>
+
+
+                        </tr>
+                    </table>
+                        <div className="Event-Misc">
+                            <p style={{margin:"5px"}}>Paid: <input type="checkbox" checked={paid} onChange={(e) => {setPaid(e.target.checked); setEventChanged(true)}}/><br/></p>
+                            {props.event["DebriefEmailSent"] ? <></> : Date.now() > endTime ? <div><button style={{width:"155px"}} className="button-first button-last" onClick={()=>{
+                            nav("/event-email/" + props.event["EventID"] + "/debrief");
+                            }}>Send Debrief Email</button><br/></div> :
+                            props.event["LinkEmailSent"] ? <div><button style={{width:"155px"}} className="button-first button-last" onClick={() => {
+                                nav("/event-email/" + props.event["EventID"] + "/reminder");
+                                }}>Send Reminder</button><br/></div> :
+                                                     <div><button style={{width:"155px"}} className="button-first button-last" onClick={() => {
+                                                            nav("/event-email/" + props.event["EventID"] + "/invite");
+                                                     }}>Send Invite Link</button> <br/></div>
+                        }
+                            <button style={{width:"155px"}} className="button-first button-last" onClick={()=>{
+                                deleteEvent();
+                                props.showEvent(false);
+                                props.fetchData();
+                            }
+                            }>Delete Event</button>
+                        </div>
                 </div>
-                <a href={props.event["GoogleMeetLink"]}>Google Meet</a><br/>
-                {props.event["DebriefEmailSent"] ? <></> : Date.now() > endTime ? <div><button onClick={()=>{
-                    nav("/event-email/" + props.event["EventID"] + "/debrief");
-                    }}>Send Debrief Email</button><br/></div> :
-                    props.event["LinkEmailSent"] ? <div><button onClick={() => {
-                        nav("/event-email/" + props.event["EventID"] + "/reminder");
-                        }}>Send Reminder</button><br/></div> :
-                                             <div><button onClick={() => {
-                                                    nav("/event-email/" + props.event["EventID"] + "/invite");
-                                             }}>Send Invite Link</button> <br/></div>
-                }
-                Paid: <input type="checkbox" checked={paid} onChange={(e) => {setPaid(e.target.checked); setEventChanged(true)}}/><br/>
-                Notes:<br/> <textarea className="Notes" maxLength="255" placeholder="Use this to write notes about what is going on in a session." defaultValue={session && notes ? notes : ""} onChange={(e) => {setNotes(e.target.value); setSessionChanged(true)}}/><br/>
-                <button onClick={()=>{
-                    deleteEvent();
-                    props.showEvent(false);
-                    props.fetchData();
-                }
-                }>Delete Event</button>
-                <button onClick={() => {
+                <div>
+                    <h2 style={{margin: "2px", textWrap: "nowrap"}}>Notes</h2><br/> <textarea className="Notes" maxLength="255" placeholder="Use this to write notes about what is going on in a session." defaultValue={session && notes ? notes : ""} onChange={(e) => {setNotes(e.target.value); setSessionChanged(true)}}/><br/>
+                </div>
+                <button className="button-first button-last" onClick={() => {
                     if (eventChanged) {
                         updateEvent();
                     }
                     if (sessionChanged) {
                         updateSession();
                     }
+                    props.showEvent(false);
+                    props.fetchData();
                 }}>Save Changes</button>
             </div>
         </div>

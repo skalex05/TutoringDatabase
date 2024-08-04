@@ -1,11 +1,19 @@
-import "../../App.css";
 import "react-big-calendar/lib/css/react-big-calendar.css"
-import {Link} from "react-router-dom";
+import "../../App.css";
+import {useNavigate} from "react-router-dom";
 import {Calendar, Views, momentLocalizer} from 'react-big-calendar';
 import moment from "moment";
 import {useCallback, useEffect, useState} from "react";
 import EventView from "../../Components/EventView/EventView";
 import {addWeeks, subWeeks, startOfWeek, format} from "date-fns";
+
+moment.locale('en', {
+    week: {
+        dow: 1,
+        doy: 1
+    }
+});
+
 const localizer = momentLocalizer(moment);
 
 function Main() {
@@ -18,6 +26,7 @@ function Main() {
     const [periodStart, setPeriodStart] = useState(week);
     week = addWeeks(week, 5)
     const [periodEnd, setPeriodEnd] = useState(week);
+    const nav = useNavigate();
 
     const getEventJson = (eventId) => {
         for (let e of events) {
@@ -49,18 +58,19 @@ function Main() {
         let eventJSON = getEventJson(event.id);
         console.log(eventJSON);
         let style = {
-            borderRadius: '0px',
-            opacity: 0.8,
+            borderRadius: '5px',
+            justifyContent: 'center',
+            opacity: 1,
             color: 'black',
             border: '0px',
-            display: 'block'
+            display: 'flex'
         };
         if (eventJSON["Paid"] && eventJSON["DebriefEmailSent"]){
-            style["backgroundColor"] = "#00FF00";
+            style["backgroundColor"] = "#388538";
         } else if (Date.parse(eventJSON["EndTime"]) < Date.now()) {
-            style["backgroundColor"] = "#FFA500";
+            style["backgroundColor"] = "#bb9746";
         } else {
-            style["backgroundColor"] = "#FF0000";
+            style["backgroundColor"] = "#ab2a2a";
         }
         console.log(style);
         return {"style": style};
@@ -117,28 +127,26 @@ function Main() {
             fetchData={fetchData}
         />}
         <header className="App-header">
-          Tutoring Database
+          Tutoring Management System
         </header>
-        <nav>
-            <Link to="/businesses" relative="path">View Businesses</Link>
-            <br/>
-            <Link to="/parents" relative="path">View Parents</Link>
-            <br/>
-            <Link to="/students" relative="path">View Students</Link>
-            <br/>
-            <Link to="/sessions" relative="path">View Sessions</Link>
-        </nav>
-        <Calendar
-            localizer={localizer}
-            events={calendarEvents}
-            startAccessor="start"
-            endAccessor="end"
-            onSelectEvent={handleSelect}
-            onNavigate={onNavigate}
-            defaultView={Views.WEEK}
-            style={{ height: 500 }}
-            eventPropGetter={eventStyleGetter}
-        />
+            <button className="button-first" onClick={() => nav("/businesses")}>Businesses</button>
+            <button onClick={() => nav("/parents")}>Parents</button>
+            <button onClick={() => nav("/students")}>Students</button>
+            <button className="button-last" onClick={() => nav("/sessions")}>Sessions</button>
+        <div className="calendar-wrapper">
+            <Calendar
+                localizer={localizer}
+                events={calendarEvents}
+                onSelectEvent={handleSelect}
+                views={['month','week', 'day', ]}
+                step="60"
+                timeslots="1"
+                onNavigate={onNavigate}
+                defaultView={Views.WEEK}
+                eventPropGetter={eventStyleGetter}
+                style={{height: "80vh"}}
+            />
+        </div>
     </div>
   );
 }
