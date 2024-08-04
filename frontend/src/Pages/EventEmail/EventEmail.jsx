@@ -86,11 +86,11 @@ function EventEmail() {
                         setSubject(tEvent["EventName"])
                         setRecipients(`${data["ParentEmail"]}, ${data["StudentEmail"]}, ${data["BusinessEmail"]}`)
                         if (type === "invite"){
-                            setEmailBody(`Hi ${data["ParentName"]},\n\nHere is the Google Meet link for our ${data["Subject"].toLowerCase()} session on ${format(tEvent["StartTime"], "cccc do LLLL")} at ${format(tEvent["StartTime"], "HH:mm")}\n\n ${tEvent["GoogleMeetLink"] ? tEvent["GoogleMeetLink"] : "<LINK UNAVAILABLE>"}\n\nMany Thanks,\n${data["Sender"]}`)
+                            setEmailBody(`Hi ${data["ParentName"]},\n\nHere is the Google Meet link for our ${data["Subject"].toLowerCase()} session on ${format(tEvent["StartTime"], "cccc do LLLL")} at ${format(tEvent["StartTime"], "HH:mm")}\n\n${tEvent["GoogleMeetLink"] ? tEvent["GoogleMeetLink"] : "<LINK UNAVAILABLE>"}\n\nMany Thanks,\n${data["Sender"]}`)
                         } else if (type === "reminder") {
-                            setEmailBody(`Hi ${data["ParentName"]},\n\nThis is a reminder for our tutoring session on ${format(tEvent["StartTime"], "cccc do LLLL")} at  ${format(tEvent["StartTime"], "HH:mm")}. Please let me know if you have any issues joining the call\n\nMany Thanks,\n${data["Sender"]}`)
+                            setEmailBody(`Hi ${data["ParentName"]},\n\nThis is a reminder for our ${data["Subject"].toLowerCase()} session on ${format(tEvent["StartTime"], "cccc do LLLL")} at ${format(tEvent["StartTime"], "HH:mm")}\n\n${tEvent["GoogleMeetLink"] ? tEvent["GoogleMeetLink"] : "<LINK UNAVAILABLE>"}\n\nPlease let me know if you have any issues joining the call.\n\nMany Thanks,\n${data["Sender"]}`)
                         } else if (type === "debrief") {
-                            setEmailBody(`Hi ${data["ParentName"]},\n\nI just wanted to check in and see how you felt the tutoring session went. Please let me know if you have any feedback or concerns\n\nMany Thanks,\n${data["Sender"]}`)
+                            setEmailBody(`Hi ${data["ParentName"]},\n\nI just wanted to check in and see how you felt the session went. Please let me know if you have any feedback or concerns\n\nMany Thanks,\n${data["Sender"]}`)
                         }
                     })
                 }).catch(err => {
@@ -104,13 +104,25 @@ function EventEmail() {
 
     return (
         <div className="App">
-            <header className="App-header">Email Sender</header>
-            <Link to="../" reference="path">Back</Link>
-            {event && <h3>Email for {event["EventName"]} on {format(event["StartTime"], "cccc do LLLL")} at  {format(event["StartTime"], "HH:mm")}</h3>}
-            <label className="Subject">Subject: </label><input className="EmailSubject" type="text" defaultValue={subject} onChange={e => setSubject(e.target.value)}/><br/>
-            <label className="RecipientLabel">Recipients: </label><input className="EmailRecipients" type="text" defaultValue={recipients} onChange={(e) => setRecipients(e.target.value)}/><br/>
-            <textarea className="EmailBody" defaultValue={emailBody} placeholder="Type your email here" onChange={(e) => setEmailBody(e.target.value)}/><br/>
-            <button onClick={sendEmail}>Send Email</button>
+            <div className="EmailContainer">
+                {event && <h1 style={{padding:"20px 0", margin:0}}>Email for {event["EventName"]} - {format(event["StartTime"], "cccc do LLLL")} at  {format(event["StartTime"], "HH:mm")}</h1>}
+                <table style={{width:"60%", textAlign:"left"}}>
+                    <tr>
+                        <td><label className="Subject">Subject</label></td>
+                        <td style={{width:"99%"}}><input style={{width:"100%"}} className="EmailSubject" type="text" defaultValue={subject} onChange={e => setSubject(e.target.value)}/></td>
+                    </tr>
+                    <tr>
+                        <td><label className="RecipientLabel">Recipients</label></td>
+                        <td><input style={{width:"100%"}} className="EmailRecipients" type="text" defaultValue={recipients} onChange={(e) => setRecipients(e.target.value)}/></td>
+                    </tr>
+                    <tr>
+                        <td><label className="BodyLabel">Body</label></td>
+                        <td><textarea style={{width:"100%"}} className="EmailBody" defaultValue={emailBody} placeholder="Type your email here" onChange={(e) => setEmailBody(e.target.value)}/></td>
+                    </tr>
+                </table>
+                <button className="back button-first" onClick={()=>{nav("../")}}>Back</button>
+                <button style={{textAlign:"center"}}className="button-last" onClick={sendEmail}>Send Email</button>
+            </div>
         </div>
     );
 }

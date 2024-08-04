@@ -26,7 +26,7 @@
     background-color: #44494f;
     padding: 20px;
     border-radius: 5px;
-    width: 40%;
+    width: 38%;
     min-width: 300px;
     z-index: 2;
 }
@@ -34,4 +34,18 @@
 .Error-Message {
     color: red;
     margin-top: 5px;
+}
+
+.Event-Info-Wrapper {
+    justify-content: center;
+    align-items: center;
+    width: 85%;
+    height: 150px;
+    margin: 20px auto;
+}
+
+.Event-Datetime-Table {
+    margin-top: 5px;
+    text-align: left;
+    float: left;
 }

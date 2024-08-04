@@ -1,12 +1,15 @@
 import {useEffect, useState} from "react";
 import {BsFillTrashFill, BsFillPencilFill} from "react-icons/bs";
 import {RowEditor} from "./RowEditor";
+import "../../App.css";
+import {useNavigate} from "react-router-dom";
 
 function BusinessTable (props) {
     const [showEditor, setShowEditor] = useState(false);
     const [editorMode, setEditorMode] = useState("Add");
     const [editBusinessID, setEditBusinessID] = useState(null);
     const [businesses , setBusinesses] = useState([]);
+    const nav = useNavigate();
 
     const fetchData = async () => {
         fetch('http://localhost:5000/get_business',
@@ -88,21 +91,22 @@ function BusinessTable (props) {
             <thead>
                 <tr>
                     <th>Business Name</th>
-                    <th>Business Owner</th>
-                    <th>Business Email</th>
-                    <th>Business Phone</th>
+                    <th className="vline">Business Owner</th>
+                    <th className="vline">Business Email</th>
+                    <th className="vline">Business Phone</th>
+                    <th className="vline"></th>
                 </tr>
                 {businesses.map(business => {
                     return <tr>
                         <td>{business["BusinessName"]}</td>
-                        <td>{business["FirstName"]+" "+business["LastName"]}</td>
-                        <td>{business["Email"]}</td>
-                        <td>{business["PhoneNumber"]}</td>
-                        <td>
+                        <td className="vline">{business["FirstName"]+" "+business["LastName"]}</td>
+                        <td className="vline">{business["Email"]}</td>
+                        <td className="vline">{business["PhoneNumber"]}</td>
+                        <td className="vline">
                             <span>
-                                <button onClick={() => deleteBusiness(business)}>
+                                <button className="button-first edit-icons" onClick={() => deleteBusiness(business)}>
                                     <BsFillTrashFill/></button>
-                                <button onClick={() => {
+                                <button className="button-last edit-icons" onClick={() => {
                                     setEditBusinessID(business["BusinessID"]);
                                     setEditorMode("edit");
                                     setShowEditor(true);
@@ -114,10 +118,11 @@ function BusinessTable (props) {
                 })}
             </thead>
         </table>
-        <button onClick={()=>{
+        <button className="back button-first" onClick={()=>nav("../")}>Back</button>
+        <button className=" button-last" onClick={()=>{
             setShowEditor(true);
             setEditorMode("add");
-        }}>Add</button>
+        }}>Add Business</button>
     </div>;
 }
 

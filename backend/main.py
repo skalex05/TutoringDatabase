@@ -399,10 +399,10 @@ def update_session(data=None):
                         event_json["StartTime"] = datetime.strftime(event.StartTime + start_time_offset, TIME_FORMAT)
                     if end_time_offset:
                         event_json["EndTime"] = datetime.strftime(event.EndTime + end_time_offset, TIME_FORMAT)
-            if data["SessionName"]:
+            if "SessionName" in data:
                 event_json["EventName"] = data["SessionName"]
 
-            desc = (f"{session['Subject']} session for {student['FirstName']} {student['LastName']}\n"
+            desc = (f"{session['Subject']} session for {student['FirstName']} {student['LastName']}\n\n"
                     f"Contact Details:\n"
                     f"{business['BusinessName']} - {business['Email']} - {business['PhoneNumber']}\n"
                     f"{parent['FirstName']} {parent['LastName']} - {parent['Email']} - {parent['PhoneNumber']}\n"
@@ -477,7 +477,7 @@ def new_event(data=None):
         business = business.json["Business"][0]
 
         data["EventName"] = session["SessionName"]
-        desc = (f"{session['Subject']} session for {student['FirstName']} {student['LastName']}\n"
+        desc = (f"{session['Subject']} session for {student['FirstName']} {student['LastName']}\n\n"
                 f"Contact Details:\n"
                 f"{business['BusinessName']} - {business['Email']} - {business['PhoneNumber']}\n"
                 f"{parent['FirstName']} {parent['LastName']} - {parent['Email']} - {parent['PhoneNumber']}\n"
@@ -489,7 +489,7 @@ def new_event(data=None):
                 {"email": student["Email"]}
             ],
             "summary": session["SessionName"],
-            "description": data["Description"],
+            "description": f"{session['Subject']} session for {student['FirstName']} {student['LastName']}\n",
             "conferenceData": {
                 "createRequest": {
                     "requestId": str(uuid.uuid4()),
@@ -574,7 +574,7 @@ def update_event(data=None):
         if "EventName" in data:
             json_body["summary"] = data["EventName"]
         if "Description" in data:
-            json_body["description"] = data["Description"]
+            json_body["description"] = data["Description"].split("\n")[0]
         if json_body != {}:
             try:
                 eventsResource.patch(calendarId=event_json["GoogleCalendarID"], eventId=event_json["GoogleEventID"],
@@ -653,7 +653,7 @@ def get_event_email_info():
         return {}, 400
 
     emails = db.session.query(Student.Email, Parent.Email, Business.Email, Session.Subject,
-                              Parent.FirstName, Parent.LastName, Student.FirstName, Student.LastName).filter(
+                              Parent.FirstName, Student.FirstName).filter(
                                Event.EventID == event_id).filter(
                                Session.SessionID == Event.SessionID).filter(
                                Student.StudentID == Session.StudentID).filter(
@@ -665,8 +665,8 @@ def get_event_email_info():
         "ParentEmail": emails[1],
         "BusinessEmail": emails[2],
         "Subject": emails[3],
-        "ParentName": emails[4] + " " + emails[5],
-        "StudentName": emails[6] + " " + emails[7],
+        "ParentName": emails[4],
+        "StudentName": emails[5],
         "Sender": "Alex"
     }, 200
 

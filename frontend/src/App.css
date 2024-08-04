@@ -1,43 +1,243 @@
+html {
+    background-color: #282c34;
+}
+
 .App {
-  text-align: center;
-  background-color: #282c34;
-  min-height: 100vh;
-  color: #d7dbe5;
+    text-align: center;
+    min-height: 100vh;
+    color: #d7dbe5;
+    font-family: "Roboto", sans-serif;
+    font-size: 1em;
+}
+
+.button-first {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.button-last {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.back {
+    background-color: #94adb7;
+}
+
+button {
+    text-align: center;
+    background-color: #82c6de;
+    color: #282c34;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px 2px;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-size: 1em
+}
+
+.edit-icons {
+    font-size: 0.8em;
 }
 
 table {
-  justify-content: center;
-  display: block;
-  overflow: hidden;
-  table-layout: auto;
-  border-collapse: collapse;
-  white-space: nowrap;
-  margin: auto;
-  overflow-x: auto;
+    overflow-x: auto;
+    display: block;
+    max-width: 80%;
+    width: fit-content;
+    margin: 10px auto;
+    white-space: nowrap;
+    border: 1px solid #727279;
+    border-collapse: collapse;
+    background-color: #44494f;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+td {
+    white-space: nowrap;
+    padding: 5px 10px;
+    background-color: #44494f;
+    min-width: 100px;
+}
+
+th {
+    padding: 5px 10px;
+    background-color: #44494f;
+}
+
+.vline {
+    border-left: 1px solid #727279;
 }
 
 a {
-  color : #a8b3d2
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    color : #a8b3d2
 }
 
 .App-header {
-  display: flex;
-  flex-direction: column;
-  font-size: calc(30px + 2vmin);
-  color: white;
+    display: flex;
+    flex-direction: column;
+    font-size: calc(30px + 2vmin);
+    color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.RowEditor-Container {
+    position: fixed;
+    z-index: 1;
+    left:0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Error-Message {
+    color: red;
+    margin-top: 5px;
+}
+
+.RowEditor {
+    justify-content: center;
+    background-color: #44494f;
+    padding: 20px;
+    border-radius: 10px;
+    height: fit-content;
+    min-height: 250px;
+}
+
+form {
+    text-align: left
+}
+
+input {
+    margin: 2px;
+    justify-content: right;
+    background-color: #babac2;
+    padding : 2px 5px;
+    border-style: none;
+    border-radius: 5px;
+    font-family: Roboto, sans-serif;
+    font-size: 1.15em;
+}
+
+textarea {
+    font-size: 1.15em;
+    background-color: #babac2;
+    padding : 2px 5px;
+    border-style: none;
+    border-radius: 5px;
+    font-family: Roboto, sans-serif;
+    resize: none;
+}
+
+select {
+    font-size: 1.15em;
+    margin: 2px;
+    justify-content: right;
+    font-family: Roboto, sans-serif;
+    background-color: #babac2;
+    padding : 2px 5px;
+}
+
+.editHeader {
+    padding-top: 0px;
+    margin-top: 5px;
+}
+
+option {
+    border-radius: 0px;
+}
+
+.time-zone-label {
+    font-size : 0.75em;
+}
+
+.calendar-wrapper {
+    margin: 30px;
+    margin-top: 5px;
+    font-family: Roboto, sans-serif;
+    text-align: center;
+}
+
+.rbc-btn-group button {
+    background-color: #82c6de;
+    color: #282c34;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px 4px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em
+}
+
+.rbc-toolbar button.rbc-active
+{
+    background-color: #7598b9;
+}
+
+.rbc-toolbar button:hover, .rbc-toolbar button:active:focus, .rbc-toolbar button.rbc-active:hover, .rbc-toolbar button.rbc-active:focus  {
+    background-color: #7598b9;
+}
+
+.rbc-toolbar button:active, .rbc-toolbar button:focus {
+    background-color: #7598b9;
+}
+
+.rbc-toolbar-label {
+    font-size: 1.5em;
+}
+
+.rbc-today {
+    background-color: #3e4854;
+}
+
+.rbc-timeslot-group {
+    border-collapse: collapse;
+}
+
+.rbc-label {
+    vertical-align: middle;
+}
+
+.rbc-header {
+    width: 14.2857%;
+    font-size: 1.2em;
+}
+
+.rbc-current-time-indicator {
+    background-color: #9900ff;
+}
+
+.rbc-day-slot .rbc-events-container {
+    margin : 0;
+}
+
+.rbc-off-range-bg {
+    background-color: #687179;
+}
+
+.rbc-month-view {
+    border-collapse: collapse;
+    border-radius: 10px;
+    min-height: 500px;
+}
+
+.rbc-time-view {
+    border-radius: 10px;
+    border-bottom-right-radius: 0;
+}
+
+.rbc-timeslot-group {
+    border-bottom: 0;
+}
+
+.rbc-time-content {
+    border-top : 0;
+}
+
+.rbc-time-slot {
+    border-top: 1px solid #dcdcdc;
 }

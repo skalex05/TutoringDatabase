@@ -1,5 +1,6 @@
 import React from "react";
-import "./roweditor.css";
+import "../../App.css";
+
 
 export const RowEditor = (props) => {
     const [errMsg, setErrMsg] = React.useState("");
@@ -58,46 +59,51 @@ export const RowEditor = (props) => {
             }
         }}>
             <div className= "RowEditor">
+                <h2 className="editHeader">{props.editorMode.charAt(0).toUpperCase()+props.editorMode.slice(1)} Student</h2>
                 <form onSubmit={onSubmit}>
-                    <div>
-                        <label htmlFor="Name">Student Name</label>
-                        <input type="text" defaultValue={props.rowValues["Name"]} id="Name" name="Name"
-                               onChange={(e) => props.rowValues["Name"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="YearGrade">Year Group</label>
-                        <input type="text" defaultValue={props.rowValues["YearGrade"]} id="YearGrade" name="YearGrade"
-                               onChange={(e) => props.rowValues["YearGrade"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="Email">Email</label>
-                        <input type="text" defaultValue={props.rowValues["Email"]} id="Email" name="Email"
-                               onChange={(e) => props.rowValues["Email"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="PhoneNumber">Phone Number</label>
-                        <input type="text" defaultValue={props.rowValues["PhoneNumber"]} id="PhoneNumber" name="PhoneNumber"
-                               onChange={(e) => props.rowValues["PhoneNumber"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="ParentID">Parent</label>
-                        <select defaultValue={props.rowValues["ParentID"]} id="ParentID" name="Parent"
-                               onChange={(e) => props.rowValues["ParentID"] = e.target.value}>
-                                {props.parents.map(parent => {
-                                    return <option value={parent["ParentID"]}>{parent["FirstName"] + " " + parent["LastName"]}</option>
+                    <table style={{maxWidth:"100%", margin:"auto 10px"}}>
+                        <tr>
+                            <td><label htmlFor="Name">Student Name</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["Name"]} id="Name" name="Name"
+                                   onChange={(e) => props.rowValues["Name"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="YearGrade">Year Group</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["YearGrade"]} id="YearGrade" name="YearGrade"
+                                   onChange={(e) => props.rowValues["YearGrade"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Email">Email</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["Email"]} id="Email" name="Email"
+                                   onChange={(e) => props.rowValues["Email"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="PhoneNumber">Phone Number</label></td>
+                            <td><input maxLength={11} type="text" defaultValue={props.rowValues["PhoneNumber"]} id="PhoneNumber" name="PhoneNumber"
+                                   onChange={(e) => props.rowValues["PhoneNumber"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="ParentID">Parent</label></td>
+                            <td><select defaultValue={props.rowValues["ParentID"]} id="ParentID" name="Parent"
+                                   onChange={(e) => props.rowValues["ParentID"] = e.target.value}>
+                                    {props.parents.map(parent => {
+                                        return <option value={parent["ParentID"]}>{parent["FirstName"] + " " + parent["LastName"]}</option>
+                                    })}
+                            </select></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="BusinessID">Business</label></td>
+                            <td><select defaultValue={props.rowValues["BusinessID"]} id="BusinessID" name="Business"
+                                    onChange={(e) => props.rowValues["BusinessID"] = e.target.value}>
+                                {props.businesses.map(business => {
+                                    return <option value={business["BusinessID"]}>{business["BusinessName"]}</option>
                                 })}
-                        </select>
+                            </select></td>
+                        </tr>
+                    </table>
+                    <div style={{textAlign: "center"}}>
+                        <button className="button-first button-last" type="submit">Submit</button>
                     </div>
-                    <div>
-                        <label htmlFor="BusinessID">Business</label>
-                        <select defaultValue={props.rowValues["BusinessID"]} id="BusinessID" name="Business"
-                                onChange={(e) => props.rowValues["BusinessID"] = e.target.value}>
-                            {props.businesses.map(business => {
-                                return <option value={business["BusinessID"]}>{business["BusinessName"]}</option>
-                            })}
-                        </select>
-                    </div>
-                    <button type="submit">Submit</button>
                 </form>
                 <div className="Error-Message">{errMsg}</div>
             </div>

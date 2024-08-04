@@ -1,5 +1,5 @@
 import React from "react";
-import "./roweditor.css";
+import "../../App.css";
 
 export const RowEditor = (props) => {
     const [errMsg, setErrMsg] = React.useState("");
@@ -49,28 +49,33 @@ export const RowEditor = (props) => {
             }
         }}>
             <div className= "RowEditor">
+                <h2 className="editHeader">{props.editorMode.charAt(0).toUpperCase()+props.editorMode.slice(1)} Business</h2>
                 <form onSubmit={onSubmit}>
-                    <div>
-                        <label htmlFor="BusinessName">Business Name</label>
-                        <input type="text" defaultValue={props.rowValues["BusinessName"]} id="Business Name" name="Business Name"
-                               onChange={(e) => props.rowValues["BusinessName"] = e.target.value}/>
+                    <table style={{maxWidth:"100%", margin:"auto 10px"}}>
+                        <tr>
+                            <td><label htmlFor="BusinessName">Business Name</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["BusinessName"]} id="Business Name" name="Business Name"
+                                       onChange={(e) => props.rowValues["BusinessName"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="OwnerName">Owner Name</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["OwnerName"]} id="Owner Name" name="Owner Name"
+                                       onChange={(e) => props.rowValues["OwnerName"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="Email">Email</label></td>
+                            <td><input type="text" defaultValue={props.rowValues["Email"]} id="Email" name="Email"
+                                       onChange={(e) => props.rowValues["Email"] = e.target.value}/></td>
+                        </tr>
+                        <tr>
+                            <td><label htmlFor="PhoneNumber">Phone Number</label></td>
+                            <td><input maxLength={11} type="text" defaultValue={props.rowValues["PhoneNumber"]} id="PhoneNumber" name="PhoneNumber"
+                                       onChange={(e) => props.rowValues["PhoneNumber"] = e.target.value}/></td>
+                        </tr>
+                    </table>
+                    <div style={{textAlign: "center"}}>
+                        <button className="button-first button-last" type="submit">Submit</button>
                     </div>
-                    <div>
-                        <label htmlFor="OwnerName">Owner Name</label>
-                        <input type="text" defaultValue={props.rowValues["OwnerName"]} id="Owner Name" name="Owner Name"
-                               onChange={(e) => props.rowValues["OwnerName"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="Email">Email</label>
-                        <input type="text" defaultValue={props.rowValues["Email"]} id="Email" name="Email"
-                               onChange={(e) => props.rowValues["Email"] = e.target.value}/>
-                    </div>
-                    <div>
-                        <label htmlFor="PhoneNumber">Phone Number</label>
-                        <input type="text" defaultValue={props.rowValues["PhoneNumber"]} id="PhoneNumber" name="PhoneNumber"
-                               onChange={(e) => props.rowValues["PhoneNumber"] = e.target.value}/>
-                    </div>
-                    <button type="submit">Submit</button>
                 </form>
                 <div className="Error-Message">{errMsg}</div>
             </div>

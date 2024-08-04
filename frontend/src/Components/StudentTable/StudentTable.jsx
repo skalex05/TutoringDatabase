@@ -1,6 +1,8 @@
 import {useEffect, useState} from "react";
 import {BsFillTrashFill, BsFillPencilFill} from "react-icons/bs";
 import {RowEditor} from "./RowEditor";
+import "../../App.css";
+import {useNavigate} from "react-router-dom";
 
 function StudentTable (props) {
     const [showEditor, setShowEditor] = useState(false);
@@ -9,6 +11,7 @@ function StudentTable (props) {
     const [students , setStudents] = useState([]);
     const [parents, setParents] = useState([]);
     const [businesses, setBusinesses] = useState([])
+    const nav = useNavigate();
 
     const fetchData = async () => {
         fetch('http://localhost:5000/get_student',
@@ -116,41 +119,42 @@ function StudentTable (props) {
             <thead>
                 <tr>
                     <th>Student Name</th>
-                    <th>Year Group</th>
-                    <th>Student Email</th>
-                    <th>Student Phone Number</th>
-                    <th>Parent Name</th>
-                    <th>Parent Email</th>
-                    <th>Parent Phone Number</th>
-                    <th>Business Name</th>
-                    <th>Business Email</th>
-                    <th>Business Phone Number</th>
+                    <th className="vline">Year Group</th>
+                    <th className="vline">Email</th>
+                    <th className="vline">Phone Number</th>
+                    <th className="vline">Parent Name</th>
+                    <th className="vline">Email</th>
+                    <th className="vline">Phone Number</th>
+                    <th className="vline">Business Name</th>
+                    <th className="vline">Email</th>
+                    <th className="vline">Phone Number</th>
+                    <th className="vline" style={{position: "sticky", right:-10}}></th>
                 </tr>
                 {students.map(student => {
                     const parent = parents.find(parent => parent["ParentID"] === student["ParentID"]);
                     const business = businesses.find(business => business["BusinessID"] === student["BusinessID"]);
                     return <tr>
                         <td>{student["FirstName"]+" "+student["LastName"]}</td>
-                        <td>{student["YearGrade"]}</td>
-                        <td>{student["Email"]}</td>
-                        <td>{student["PhoneNumber"]}</td>
+                        <td className="vline">{student["YearGrade"]}</td>
+                        <td className="vline">{student["Email"]}</td>
+                        <td className="vline">{student["PhoneNumber"]}</td>
                         {parent === undefined ? <><td></td> <td></td> <td></td></>: <>
-                        <td>{parent["FirstName"]+" "+parent["LastName"]}</td>
-                        <td>{parent["Email"]}</td>
-                        <td>{parent["PhoneNumber"]}</td>
+                        <td className="vline">{parent["FirstName"]+" "+parent["LastName"]}</td>
+                        <td className="vline">{parent["Email"]}</td>
+                        <td className="vline"> {parent["PhoneNumber"]}</td>
                         </>
                         }
                         {business === undefined ? <><td></td> <td></td> <td></td></>: <>
-                        <td>{business["BusinessName"]}</td>
-                        <td>{business["Email"]}</td>
-                        <td>{business["PhoneNumber"]}</td>
+                        <td className="vline">{business["BusinessName"]}</td>
+                        <td className="vline">{business["Email"]}</td>
+                        <td className="vline">{business["PhoneNumber"]}</td>
                         </>
                         }
-                        <td>
+                        <td className="vline" style={{position: "sticky", right:-10}}>
                             <span>
-                                <button onClick={() => deleteStudent(student)}>
+                                <button className="button-first edit-icons" onClick={() => deleteStudent(student)}>
                                     <BsFillTrashFill/></button>
-                                <button onClick={() => {
+                                <button className="button-last edit-icons" onClick={() => {
                                     setEditStudentID(student["StudentID"]);
                                     setEditorMode("edit");
                                     setShowEditor(true);
@@ -162,10 +166,11 @@ function StudentTable (props) {
                 })}
             </thead>
         </table>
-        <button onClick={()=>{
+        <button className="back button-first" onClick={()=>nav("../")}>Back</button>
+        <button className="button-last" onClick={()=>{
             setShowEditor(true);
             setEditorMode("add");
-        }}>Add</button>
+        }}>Add Student</button>
     </div>;
 }
 
